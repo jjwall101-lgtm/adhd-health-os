@@ -3,30 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#171412">
-<title>ADHD Health OS V4</title>
+<title>ADHD Health OS V4.1 Fixed</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg">
 <link rel="stylesheet" href="styles.css">
+<meta name="theme-color" content="#171412">
 </head>
 <body>
 <main class="app">
 <header class="top">
-  <div class="brand">
-    <img src="icon.svg" class="logo" alt="">
-    <div>
-      <p class="eyebrow">ADHD Health OS</p>
-      <h1 id="todayTitle">V4 Public</h1>
-    </div>
-  </div>
-  <button class="ghost" id="exportBtn">Export</button>
+  <div class="brand"><img src="icon.svg" class="logo" alt=""><div><p class="eyebrow">ADHD Health OS</p><h1 id="todayTitle">V4.1 Fixed</h1></div></div>
+  <button id="exportBtn" class="ghost" type="button">Export</button>
 </header>
 
-<section id="onboarding" class="onboarding">
+<section id="setupOverlay" class="overlay">
   <div class="card">
     <h2>Setup</h2>
-    <p class="muted">Choose what you want the app to focus on. You can change this later.</p>
-    <label>Your template
+    <p class="muted">Pick a starting template. You can change this later.</p>
+    <label>Template
       <select id="template">
         <option value="general">General ADHD</option>
         <option value="student">Student</option>
@@ -36,40 +30,32 @@
         <option value="sleep">ADHD + Sleep</option>
       </select>
     </label>
-    <label>Medication <input id="setupMed" placeholder="Elvanse, Concerta, Amfexa, none..."></label>
-    <div class="checks">
-      <label><input type="checkbox" class="goalSetup" value="focus" checked> Improve focus</label>
-      <label><input type="checkbox" class="goalSetup" value="crash" checked> Reduce crashes</label>
-      <label><input type="checkbox" class="goalSetup" value="sleep" checked> Improve sleep</label>
-      <label><input type="checkbox" class="goalSetup" value="health"> Health/weight</label>
-      <label><input type="checkbox" class="goalSetup" value="fitness"> Fitness</label>
-      <label><input type="checkbox" class="goalSetup" value="reports" checked> Clinician reports</label>
-    </div>
-    <button id="finishSetupBtn">Start</button>
+    <label>Medication <input id="setupMed" placeholder="Elvanse, Concerta, Amfexa, none"></label>
+    <button id="finishSetupBtn" type="button">Start App</button>
   </div>
 </section>
 
 <section class="hero">
   <div>
     <p>Forecast</p>
-    <h2 id="systemSummary">Start logging to generate insights.</h2>
-    <p class="muted" id="recommendation">Recommendations will appear here.</p>
+    <h2 id="systemSummary">Ready to log.</h2>
+    <p class="muted" id="recommendation">Your recommendation appears here.</p>
   </div>
   <div class="scoreCircle" id="scoreCircle"><span id="dailyScore">--</span><small>Daily</small></div>
 </section>
 
-<nav class="tabs">
-  <button class="active" data-tab="home">Home</button>
-  <button data-tab="log">Log</button>
-  <button data-tab="focus">Focus</button>
-  <button data-tab="meds">Meds</button>
-  <button data-tab="sleep">Sleep</button>
-  <button data-tab="health">Health</button>
-  <button data-tab="goals">Goals</button>
-  <button data-tab="journal">Journal</button>
-  <button data-tab="insights">Insights</button>
-  <button data-tab="reports">Reports</button>
-  <button data-tab="settings">Settings</button>
+<nav class="tabs" id="tabs">
+  <button class="active" type="button" data-tab="home">Home</button>
+  <button type="button" data-tab="log">Log</button>
+  <button type="button" data-tab="focus">Focus</button>
+  <button type="button" data-tab="meds">Meds</button>
+  <button type="button" data-tab="sleep">Sleep</button>
+  <button type="button" data-tab="health">Health</button>
+  <button type="button" data-tab="goals">Goals</button>
+  <button type="button" data-tab="journal">Journal</button>
+  <button type="button" data-tab="insights">Insights</button>
+  <button type="button" data-tab="reports">Reports</button>
+  <button type="button" data-tab="settings">Settings</button>
 </nav>
 
 <section id="home" class="tab active">
@@ -80,13 +66,13 @@
     <div class="card stat"><b id="dashRisk">--</b><span>Risk</span></div>
   </div>
   <div class="card">
-    <div class="cardHead"><h2>Today’s Action Plan</h2><span id="entryStatus" class="pill">Unsaved</span></div>
+    <h2>Today’s Action Plan</h2>
     <div id="actionPlan"></div>
-    <button id="saveFullEntryBtn">Save Full Daily Entry</button>
-    <button class="secondary" id="resetFormBtn">Reset Form</button>
+    <button id="saveEntryBtn" type="button">Save Full Daily Entry</button>
+    <button id="resetBtn" type="button" class="secondary">Reset Form</button>
   </div>
-  <div class="card"><h2>Predicted Tomorrow</h2><div id="tomorrowForecast"></div></div>
-  <div class="card"><h2>7-Day Snapshot</h2><div id="snapshot"></div></div>
+  <div class="card"><h2>Tomorrow Forecast</h2><div id="tomorrowForecast"></div></div>
+  <div class="card"><h2>Recent Entries</h2><div id="recentEntries"></div></div>
 </section>
 
 <section id="log" class="tab">
@@ -97,10 +83,7 @@
 <section id="focus" class="tab">
   <div class="card">
     <div class="cardHead"><h2>Focus Coach</h2><span id="focusReadinessPill" class="pill">LIVE</span></div>
-    <div class="focusScoreBox">
-      <div><p class="muted">Focus Readiness</p><b id="focusReadiness">--</b></div>
-      <div id="focusRecommendation" class="focusRecommendation">Log sleep, medication and ADHD scores to generate focus guidance.</div>
-    </div>
+    <div class="focusBox"><div><p class="muted">Focus Readiness</p><b id="focusReadiness">--</b></div><div id="focusRecommendation">Log data to generate focus guidance.</div></div>
   </div>
   <div class="card"><h2>Best Work Window</h2><div id="workWindow"></div></div>
   <div class="card">
@@ -109,10 +92,10 @@
       <label>Crash start <input id="crashTime" type="time"></label>
       <label>Recovered at <input id="recoveryTime" type="time"></label>
       <label>Crash severity / 10 <input id="crashSeverity" type="number" min="0" max="10" value="5"></label>
-      <label>Recovery minutes <input id="recoveryMinutes" type="number" placeholder="auto/manual"></label>
-      <label>Hyperfocus activity <input id="hyperfocusActivity" placeholder="Phone, work, research..."></label>
+      <label>Recovery minutes <input id="recoveryMinutes" type="number"></label>
+      <label>Hyperfocus activity <input id="hyperfocusActivity" placeholder="Phone, work, research"></label>
       <label>Hyperfocus minutes <input id="hyperfocusMinutes" type="number"></label>
-      <label>Hyperfocus type <select id="hyperfocusType"><option>Productive</option><option>Non-productive</option><option>Mixed</option></select></label>
+      <label>Type <select id="hyperfocusType"><option>Productive</option><option>Non-productive</option><option>Mixed</option></select></label>
       <label>After crash? <select id="hyperfocusAfterCrash"><option>No</option><option>Yes</option></select></label>
     </div>
     <div class="grid two">
@@ -132,8 +115,8 @@
       <label>Medication <input id="medName" placeholder="Elvanse"></label>
       <label>Dose <input id="dose" placeholder="50mg"></label>
       <label>Time taken <input id="medTime" type="time"></label>
-      <label>Missed dose?<select id="missedDose"><option value="no">No</option><option value="yes">Yes</option></select></label>
-      <label>Protein breakfast<select id="protein"><option value="yes">Yes</option><option value="no">No</option></select></label>
+      <label>Missed dose? <select id="missedDose"><option value="no">No</option><option value="yes">Yes</option></select></label>
+      <label>Protein breakfast <select id="protein"><option value="yes">Yes</option><option value="no">No</option></select></label>
       <label>Caffeine / mg <input id="caffeine" type="number" value="100"></label>
     </div>
     <h3>Side effects</h3>
@@ -178,14 +161,14 @@
   <div class="card">
     <h2>Health + Weight</h2>
     <div class="grid two">
-      <label>Weight <input id="weight" type="number" step="0.1" placeholder="lb"></label>
-      <label>Body fat % <input id="bodyFat" type="number" step="0.1"></label>
-      <label>Goal weight <input id="goalWeight" type="number" step="0.1" placeholder="lb"></label>
+      <label>Weight <input id="weight" type="number" step="0.1"></label>
+      <label>Goal weight <input id="goalWeight" type="number" step="0.1"></label>
       <label>Steps <input id="steps" type="number"></label>
       <label>Water / litres <input id="water" type="number" step="0.1"></label>
-      <label>Protein / grams <input id="proteinGrams" type="number" placeholder="180"></label>
-      <label>Gym session?<select id="gym"><option value="no">No</option><option value="yes">Yes</option></select></label>
+      <label>Protein / grams <input id="proteinGrams" type="number"></label>
+      <label>Gym session? <select id="gym"><option value="no">No</option><option value="yes">Yes</option></select></label>
       <label>Blood pressure <input id="bp" placeholder="120/80"></label>
+      <label>Body fat % <input id="bodyFat" type="number" step="0.1"></label>
     </div>
     <div class="grid two">
       <div class="mini"><b id="healthScore">--</b><span>Health Score</span></div>
@@ -200,11 +183,9 @@
   <div class="card">
     <h2>Goals</h2>
     <div class="grid two">
-      <label>ADHD score target <input id="goalAdhd" type="number" value="75"></label>
-      <label>Sleep target / h <input id="goalSleep" type="number" step="0.1" value="8"></label>
+      <label>ADHD target <input id="goalAdhd" type="number" value="75"></label>
+      <label>Sleep target / h <input id="goalSleep" type="number" value="8"></label>
       <label>Protein target / g <input id="goalProtein" type="number" value="180"></label>
-      <label>Water target / L <input id="goalWater" type="number" step="0.1" value="2"></label>
-      <label>Gym target / week <input id="goalGym" type="number" value="4"></label>
       <label>Steps target <input id="goalSteps" type="number" value="8000"></label>
     </div>
     <div id="goalProgress"></div>
@@ -214,16 +195,16 @@
 <section id="journal" class="tab">
   <div class="card">
     <h2>ADHD Journal</h2>
-    <label>Win <input id="journalWin" placeholder="What worked today?"></label>
-    <label>Struggle <input id="journalStruggle" placeholder="What was difficult?"></label>
-    <label>Observation <input id="journalObservation" placeholder="Medication, mood, side effects, patterns..."></label>
-    <label>Search journal <input id="journalSearch" placeholder="Search saved entries"></label>
+    <label>Win <input id="journalWin"></label>
+    <label>Struggle <input id="journalStruggle"></label>
+    <label>Observation <input id="journalObservation"></label>
+    <label>Search <input id="journalSearch"></label>
     <div id="journalResults"></div>
   </div>
 </section>
 
 <section id="insights" class="tab">
-  <div class="card"><h2>AI-Style Pattern Engine</h2><div id="insightList"></div></div>
+  <div class="card"><h2>Pattern Engine</h2><div id="insightList"></div></div>
   <div class="card"><h2>Weekly Review</h2><pre id="weeklyReview"></pre></div>
   <div class="card"><h2>Trends</h2><div id="chartArea"></div></div>
 </section>
@@ -231,8 +212,8 @@
 <section id="reports" class="tab">
   <div class="card">
     <h2>Reports</h2>
-    <button id="generateReportBtn">Generate Clinician Report</button>
-    <button id="downloadReportBtn">Download Report</button>
+    <button id="generateReportBtn" type="button">Generate Clinician Report</button>
+    <button id="downloadReportBtn" type="button">Download Report</button>
     <pre id="reportText"></pre>
   </div>
 </section>
@@ -240,18 +221,17 @@
 <section id="settings" class="tab">
   <div class="card">
     <h2>Settings</h2>
-    <label>Theme<select id="theme"><option value="light">Light</option><option value="dark">Dark</option><option value="amoled">AMOLED</option></select></label>
-    <label>Colour<select id="scheme"><option value="copper">Copper</option><option value="ocean">Ocean</option><option value="forest">Forest</option><option value="plum">Plum</option></select></label>
-    <button id="rerunSetupBtn">Run Setup Again</button>
-    <button id="saveSettingsBtn">Save Settings</button>
-    <button id="exportJsonBtn">Export JSON Backup</button>
+    <label>Theme <select id="theme"><option value="light">Light</option><option value="dark">Dark</option><option value="amoled">AMOLED</option></select></label>
+    <label>Colour <select id="scheme"><option value="copper">Copper</option><option value="ocean">Ocean</option><option value="forest">Forest</option><option value="plum">Plum</option></select></label>
+    <button id="rerunSetupBtn" type="button">Run Setup Again</button>
+    <button id="saveSettingsBtn" type="button">Save Settings</button>
+    <button id="exportJsonBtn" type="button">Export JSON Backup</button>
     <input id="importFile" type="file" accept=".json">
-    <button id="importBtn">Import Backup</button>
-    <button class="danger" id="clearBtn">Clear All Data</button>
-    <p class="muted version">V4 Public · Profiles · Forecast · Pattern Engine · Reports</p>
+    <button id="importBtn" type="button">Import Backup</button>
+    <button id="clearBtn" class="danger" type="button">Clear All Data</button>
+    <p class="muted version">V4.1 Fixed · Buttons working</p>
   </div>
 </section>
-
 </main>
 <script src="app.js"></script>
 </body>
