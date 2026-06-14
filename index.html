@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ADHD Health OS V4.2 Working</title>
+<title>ADHD Health OS V4.3</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg">
+<meta name="theme-color" content="#171412">
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#f3eee7;--card:#fffaf4;--ink:#171412;--muted:#766b61;--soft:#eadfd3;--accent:#9c7754;--danger:#7b241f;--ok:#2e7d32;--warn:#ef6c00;--bad:#b71c1c}
@@ -13,44 +14,25 @@ body.dark{--bg:#12100f;--card:#1d1916;--ink:#f8f1e9;--muted:#b7aa9e;--soft:#332b
 body.amoled{--bg:#000;--card:#101010;--ink:#fff;--muted:#aaa;--soft:#222}
 body.ocean{--accent:#4f7cac;--soft:#d9e8f4}body.forest{--accent:#4f7f5f;--soft:#dce8dd}body.plum{--accent:#845a7c;--soft:#eadce8}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;padding:14px}
-.app{max-width:980px;margin:auto;padding-bottom:32px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.brand{display:flex;gap:12px;align-items:center}.logo{width:48px;height:48px;border-radius:14px}.eyebrow{margin:0;color:var(--muted);font-weight:900;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}h1{margin:2px 0 0;font-size:1.55rem}h2{margin:0 0 14px}h3{margin:18px 0 8px}
+.app{max-width:980px;margin:auto;padding-bottom:32px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.brand{display:flex;gap:12px;align-items:center}.logo{width:48px;height:48px;border-radius:14px}.eyebrow{margin:0;color:var(--muted);font-weight:900;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}h1{margin:2px 0 0;font-size:1.55rem}h2{margin:0 0 14px}h3{margin:18px 0 8px}
 button{border:0;border-radius:16px;background:var(--ink);color:var(--bg);padding:13px 15px;font-weight:850;width:100%;margin-top:12px}.top button{width:auto;margin:0}.danger{background:var(--danger);color:white}.ghost,.secondary{background:var(--card);border:1px solid var(--soft);color:var(--ink)}
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;padding:20px;display:none;align-items:center;justify-content:center}.overlay.show{display:flex}.overlay .card{max-width:720px;width:100%}
 .hero{display:flex;justify-content:space-between;gap:12px;align-items:center;background:linear-gradient(135deg,var(--card),var(--soft));border-radius:28px;padding:18px;margin:12px 0}.hero p{margin:0;color:var(--muted);font-weight:800}.hero h2{font-size:1.18rem;margin:4px 0 0}.scoreCircle{width:92px;height:92px;border-radius:50%;background:var(--ink);color:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}.scoreCircle span{font-size:1.7rem;font-weight:950}.scoreCircle.low{background:var(--ok)}.scoreCircle.med{background:var(--warn)}.scoreCircle.high{background:var(--bad)}
 .tabs{display:flex;gap:8px;overflow-x:auto;position:sticky;top:0;background:var(--bg);z-index:10;padding:8px 0 10px}.tabs button{white-space:nowrap;width:auto;margin:0;background:var(--card);color:var(--muted);border:1px solid var(--soft);border-radius:999px;padding:10px 14px}.tabs button.active{background:var(--ink);color:var(--bg)}
 .tab{display:none}.tab.active{display:block}.card{background:var(--card);border-radius:24px;padding:16px;margin:12px 0;box-shadow:0 8px 22px rgba(40,28,18,.06);border:1px solid var(--soft)}.cardHead{display:flex;align-items:center;justify-content:space-between;gap:8px}.pill{border-radius:999px;padding:6px 10px;background:var(--soft);font-weight:900;color:var(--ink);font-size:.8rem}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.grid.two{grid-template-columns:1fr 1fr}.stat,.mini{background:var(--bg);border:1px solid var(--soft);border-radius:18px;padding:12px}.stat b{display:block;font-size:1.55rem}.stat span,.mini span,.muted{color:var(--muted);font-weight:750}.mini b{display:block;font-size:1.1rem}
 label{display:block;color:var(--muted);font-weight:850;margin:12px 0}input,select{width:100%;padding:12px;border-radius:14px;border:1px solid var(--soft);margin-top:6px;font:inherit;background:var(--bg);color:var(--ink)}
 input[type=range]{padding:0;accent-color:var(--accent);border:0}.row{margin:14px 0}.rowTop{display:flex;justify-content:space-between;font-weight:850}.rowTop span:last-child{background:var(--soft);border-radius:999px;padding:3px 10px}
-.entry,.insight{background:var(--bg);border:1px solid var(--soft);border-radius:16px;padding:12px;margin:8px 0}.entry b,.insight b{display:block}pre{white-space:pre-wrap;background:var(--bg);border:1px solid var(--soft);border-radius:16px;padding:12px;color:var(--ink);overflow:auto}.checks{display:grid;grid-template-columns:1fr 1fr;gap:6px}.checks label{margin:2px 0}.barWrap{background:var(--bg);border:1px solid var(--soft);border-radius:16px;padding:10px;margin:8px 0}.bar{height:12px;background:var(--accent);border-radius:999px;margin-top:6px}.timeline{display:grid;gap:10px}.timelineItem{display:flex;gap:10px;background:var(--bg);border:1px solid var(--soft);border-radius:16px;padding:10px}.timelineTime{min-width:64px;font-weight:950;color:var(--accent)}.focusBox{display:grid;grid-template-columns:1fr 1.6fr;gap:12px;align-items:center;background:var(--bg);border:1px solid var(--soft);border-radius:20px;padding:14px}.focusBox b{font-size:3rem;line-height:1}.progress{height:12px;background:var(--soft);border-radius:999px;overflow:hidden;margin-top:8px}.progress div{height:100%;background:var(--accent);border-radius:999px}.version{text-align:center;margin-top:16px}
+.entry,.insight,.explain{background:var(--bg);border:1px solid var(--soft);border-radius:16px;padding:12px;margin:8px 0}.entry b,.insight b,.explain b{display:block}pre{white-space:pre-wrap;background:var(--bg);border:1px solid var(--soft);border-radius:16px;padding:12px;color:var(--ink);overflow:auto}.checks{display:grid;grid-template-columns:1fr 1fr;gap:6px}.checks label{margin:2px 0}.barWrap{background:var(--bg);border:1px solid var(--soft);border-radius:16px;padding:10px;margin:8px 0}.bar{height:12px;background:var(--accent);border-radius:999px;margin-top:6px}.timeline{display:grid;gap:10px}.timelineItem{display:flex;gap:10px;background:var(--bg);border:1px solid var(--soft);border-radius:16px;padding:10px}.timelineTime{min-width:64px;font-weight:950;color:var(--accent)}.focusBox{display:grid;grid-template-columns:1fr 1.6fr;gap:12px;align-items:center;background:var(--bg);border:1px solid var(--soft);border-radius:20px;padding:14px}.focusBox b{font-size:3rem;line-height:1}.progress{height:12px;background:var(--soft);border-radius:999px;overflow:hidden;margin-top:8px}.progress div{height:100%;background:var(--accent);border-radius:999px}.version{text-align:center;margin-top:16px}
 @media(max-width:650px){.grid,.grid.two,.checks{grid-template-columns:1fr 1fr}.scoreCircle{width:78px;height:78px}h1{font-size:1.3rem}.focusBox{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <main class="app">
 <header class="top">
-  <div class="brand"><img src="icon.svg" class="logo" alt=""><div><p class="eyebrow">ADHD Health OS</p><h1 id="todayTitle">V4.2 Working</h1></div></div>
+  <div class="brand"><img src="icon.svg" class="logo" alt=""><div><p class="eyebrow">ADHD Health OS</p><h1 id="todayTitle">V4.3</h1></div></div>
   <button id="exportBtn" class="ghost" type="button">Export</button>
 </header>
-
-<section id="setupOverlay" class="overlay">
-  <div class="card">
-    <h2>Setup</h2>
-    <p class="muted">Pick a starting template. You can change this later.</p>
-    <label>Template
-      <select id="template">
-        <option value="general">General ADHD</option>
-        <option value="student">Student</option>
-        <option value="parent">Parent</option>
-        <option value="professional">Professional</option>
-        <option value="weight">ADHD + Weight Loss</option>
-        <option value="sleep">ADHD + Sleep</option>
-      </select>
-    </label>
-    <label>Medication <input id="setupMed" placeholder="Elvanse, Concerta, Amfexa, none"></label>
-    <button id="finishSetupBtn" type="button">Start App</button>
-  </div>
-</section>
 
 <section class="hero">
   <div>
@@ -83,24 +65,33 @@ input[type=range]{padding:0;accent-color:var(--accent);border:0}.row{margin:14px
     <div class="card stat"><b id="dashRisk">--</b><span>Risk</span></div>
   </div>
   <div class="card">
-    <h2>Today’s Action Plan</h2>
-    <div id="actionPlan"></div>
+    <h2>Overall Score Explained</h2>
+    <div id="overallExplain" class="explain"></div>
     <button id="saveEntryBtn" type="button">Save Full Daily Entry</button>
     <button id="resetBtn" type="button" class="secondary">Reset Form</button>
   </div>
-  <div class="card"><h2>Tomorrow Forecast</h2><div id="tomorrowForecast"></div></div>
+  <div class="card"><h2>Today’s Action Plan</h2><div id="actionPlan"></div></div>
   <div class="card"><h2>Recent Entries</h2><div id="recentEntries"></div></div>
 </section>
 
 <section id="log" class="tab">
-  <div class="card"><h2>ADHD Check-in</h2><div id="adhdSliders"></div></div>
-  <div class="card"><h2>Mood & Drive</h2><div id="moodSliders"></div></div>
+  <div class="card">
+    <h2>ADHD Check-in</h2>
+    <div id="adhdSliders"></div>
+    <div id="adhdExplain" class="explain"></div>
+  </div>
+  <div class="card">
+    <h2>Mood & Drive</h2>
+    <div id="moodSliders"></div>
+    <div id="moodExplain" class="explain"></div>
+  </div>
 </section>
 
 <section id="focus" class="tab">
   <div class="card">
     <div class="cardHead"><h2>Focus Coach</h2><span id="focusReadinessPill" class="pill">LIVE</span></div>
     <div class="focusBox"><div><p class="muted">Focus Readiness</p><b id="focusReadiness">--</b></div><div id="focusRecommendation">Log data to generate focus guidance.</div></div>
+    <div id="focusExplain" class="explain"></div>
   </div>
   <div class="card"><h2>Best Work Window</h2><div id="workWindow"></div></div>
   <div class="card">
@@ -151,26 +142,28 @@ input[type=range]{padding:0;accent-color:var(--accent);border:0}.row{margin:14px
       <div class="mini"><b id="medCrashRisk">--</b><span>Crash Risk</span></div>
       <div class="mini"><b id="bestDoseOut">--</b><span>Best Dose</span></div>
     </div>
+    <div id="medExplain" class="explain"></div>
   </div>
 </section>
 
 <section id="sleep" class="tab">
   <div class="card">
     <h2>Sleep</h2>
+    <p class="muted">Total sleep is calculated automatically from Bedtime to Wake time.</p>
     <div class="grid two">
       <label>Bedtime <input id="bedtime" type="time"></label>
-      <label>Time asleep <input id="sleepTime" type="time"></label>
       <label>Wake time <input id="wakeTime" type="time"></label>
       <label>Night wakings <input id="wakings" type="number" min="0" value="1"></label>
     </div>
     <label>Sleep quality / 10 <input id="quality" type="range" min="0" max="10" value="8"></label>
     <p class="muted">Quality: <span id="qualityVal">8</span>/10</p>
     <div class="grid two">
-      <div class="mini"><b id="durationOut">8.0h</b><span>Total Sleep</span></div>
-      <div class="mini"><b id="latencyOut">--</b><span>Sleep Latency</span></div>
+      <div class="mini"><b id="durationOut">8h</b><span>Total Sleep</span></div>
       <div class="mini"><b id="sleepScore">--</b><span>Sleep Score</span></div>
       <div class="mini"><b id="sleepDebtOut">--</b><span>Sleep Debt</span></div>
+      <div class="mini"><b id="sleepRiskOut">--</b><span>Recovery Risk</span></div>
     </div>
+    <div id="sleepExplain" class="explain"></div>
   </div>
 </section>
 
@@ -184,8 +177,6 @@ input[type=range]{padding:0;accent-color:var(--accent);border:0}.row{margin:14px
       <label>Water / litres <input id="water" type="number" step="0.1"></label>
       <label>Protein / grams <input id="proteinGrams" type="number"></label>
       <label>Gym session? <select id="gym"><option value="no">No</option><option value="yes">Yes</option></select></label>
-      <label>Blood pressure <input id="bp" placeholder="120/80"></label>
-      <label>Body fat % <input id="bodyFat" type="number" step="0.1"></label>
     </div>
     <div class="grid two">
       <div class="mini"><b id="healthScore">--</b><span>Health Score</span></div>
@@ -193,6 +184,7 @@ input[type=range]{padding:0;accent-color:var(--accent);border:0}.row{margin:14px
       <div class="mini"><b id="weeklyLossOut">--</b><span>Weekly Rate</span></div>
       <div class="mini"><b id="goalEtaOut">--</b><span>Goal ETA</span></div>
     </div>
+    <div id="healthExplain" class="explain"></div>
   </div>
 </section>
 
@@ -240,22 +232,21 @@ input[type=range]{padding:0;accent-color:var(--accent);border:0}.row{margin:14px
     <h2>Settings</h2>
     <label>Theme <select id="theme"><option value="light">Light</option><option value="dark">Dark</option><option value="amoled">AMOLED</option></select></label>
     <label>Colour <select id="scheme"><option value="copper">Copper</option><option value="ocean">Ocean</option><option value="forest">Forest</option><option value="plum">Plum</option></select></label>
-    <button id="rerunSetupBtn" type="button">Run Setup Again</button>
     <button id="saveSettingsBtn" type="button">Save Settings</button>
     <button id="exportJsonBtn" type="button">Export JSON Backup</button>
     <input id="importFile" type="file" accept=".json">
     <button id="importBtn" type="button">Import Backup</button>
     <button id="clearBtn" class="danger" type="button">Clear All Data</button>
-    <p class="muted version">V4.2 Working · Inline JS · No external app.js dependency</p>
+    <p class="muted version">V4.3 · Focus visible · Time asleep removed · Score explanations</p>
   </div>
 </section>
-
 </main>
+
 <script>
 (function(){
 const $=id=>document.getElementById(id);
-const storeKey='adhdHealthOSV42Working';
-let db=JSON.parse(localStorage.getItem(storeKey)||'{"entries":[],"settings":{"theme":"light","scheme":"copper"},"profile":null}');
+const storeKey='adhdHealthOSV43';
+let db=JSON.parse(localStorage.getItem(storeKey)||'{"entries":[],"settings":{"theme":"light","scheme":"copper"}}');
 const adhdMetrics=[['focus','Focus',25,false],['initiation','Task initiation',20,false],['switching','Task switching',15,false],['emotional','Emotional regulation',15,false],['noise','Mental noise',15,true],['irritability','Irritability',10,true]];
 const moodMetrics=[['mood','Mood'],['motivation','Motivation'],['anxiety','Anxiety'],['irritMood','Irritability']];
 let vals={focus:5,initiation:5,switching:5,emotional:5,noise:5,irritability:5,mood:5,motivation:5,anxiety:5,irritMood:5};
@@ -271,26 +262,35 @@ function diff(a,b){let x=mins(a),y=mins(b);if(x==null||y==null)return null;if(y<
 function save(){localStorage.setItem(storeKey,JSON.stringify(db));render()}
 function buildSliders(list,wrapId){let wrap=$(wrapId); if(!wrap)return; wrap.innerHTML=''; list.forEach(m=>{let row=document.createElement('div'); row.className='row'; row.innerHTML='<div class="rowTop"><span>'+m[1]+'</span><span id="'+m[0]+'Val">'+vals[m[0]]+'</span></div><input id="'+m[0]+'" type="range" min="0" max="10" value="'+vals[m[0]]+'">'; wrap.appendChild(row); $(m[0]).addEventListener('input',e=>{vals[m[0]]=Number(e.target.value);set(m[0]+'Val',vals[m[0]]);render()})})}
 function applySettings(){document.body.className=''; if(db.settings.theme==='dark')document.body.classList.add('dark'); if(db.settings.theme==='amoled')document.body.classList.add('amoled'); if(db.settings.scheme&&db.settings.scheme!=='copper')document.body.classList.add(db.settings.scheme); if($('theme'))$('theme').value=db.settings.theme||'light'; if($('scheme'))$('scheme').value=db.settings.scheme||'copper'}
-function adhd(){let w=0; adhdMetrics.forEach(m=>w+=(m[3]?10-vals[m[0]]:vals[m[0]])*m[2]); let score=Math.round(w/10); let exec=Math.round((vals.focus+vals.initiation+vals.switching+vals.emotional)/40*100); return {score,exec}}
-function sleep(){let start=text('sleepTime')||text('bedtime'); let dur=diff(start,text('wakeTime')); dur=dur==null?8:dur/60; let latency=text('sleepTime')&&text('bedtime')?diff(text('bedtime'),text('sleepTime')):null; let quality=value('quality',8), wakings=value('wakings',1); let ds=dur<=8?(dur/8)*50:50; let score=Math.round(clamp(ds+(quality/10)*40+Math.max(0,10-wakings*2),0,100)); return {score,duration:Number(dur.toFixed(1)),latency,debt:Number(Math.max(0,8-dur).toFixed(1))}}
-function med(a,s){let crash=clamp(value('crashSeverity',5),0,10), caffeine=value('caffeine',100), protein=text('protein')==='yes', missed=text('missedDose')==='yes'; let score=Math.round(clamp(a.score*.7+(s.score-50)*.2-crash*3+(protein?5:-3)-(caffeine>300?10:caffeine>150?5:0)-(missed?25:0)+20,0,100)); let risk=score>=75&&crash<=3?'LOW':score>=60&&crash<=6?'MEDIUM':'HIGH'; return {score,risk,missed}}
+function adhd(){let w=0; adhdMetrics.forEach(m=>w+=(m[3]?10-vals[m[0]]:vals[m[0]])*m[2]); let score=Math.round(w/10); let exec=Math.round((vals.focus+vals.initiation+vals.switching+vals.emotional)/40*100); let symptom=Math.round(((10-vals.noise)+(10-vals.irritability))/20*100); return {score,exec,symptom}}
+function sleep(){let dur=diff(text('bedtime'),text('wakeTime')); dur=dur==null?8:dur/60; let quality=value('quality',8), wakings=value('wakings',1); let ds=dur<=8?(dur/8)*50:50; let q=(quality/10)*40; let w=Math.max(0,10-wakings*2); let score=Math.round(clamp(ds+q+w,0,100)); let risk=score>=75?'LOW':score>=60?'MEDIUM':'HIGH'; return {score,duration:Number(dur.toFixed(1)),debt:Number(Math.max(0,8-dur).toFixed(1)),risk,durationScore:Math.round(ds),qualityScore:Math.round(q),wakingScore:Math.round(w)}}
+function med(a,s){let crash=clamp(value('crashSeverity',5),0,10), caffeine=value('caffeine',100), protein=text('protein')==='yes', missed=text('missedDose')==='yes'; let proteinBonus=protein?5:-3; let caffeinePenalty=caffeine>300?10:caffeine>150?5:0; let crashPenalty=crash*3; let score=Math.round(clamp(a.score*.7+(s.score-50)*.2-crashPenalty+proteinBonus-caffeinePenalty-(missed?25:0)+20,0,100)); let risk=score>=75&&crash<=3?'LOW':score>=60&&crash<=6?'MEDIUM':'HIGH'; return {score,risk,missed,crashPenalty,proteinBonus,caffeinePenalty}}
 function mood(){return {score:Math.round((vals.mood+vals.motivation+(10-vals.anxiety)+(10-vals.irritMood))/40*100)}}
-function health(s){let score=50+(s.score>=75?20:s.score<60?-10:0)+(value('steps')>=value('goalSteps',8000)?10:0)+(text('gym')==='yes'?10:0)+(value('water')>=2?5:0); return {score:clamp(Math.round(score),0,100)}}
+function health(s){let points=50, reasons=[]; if(s.score>=75){points+=20;reasons.push('+20 good sleep')}else if(s.score<60){points-=10;reasons.push('-10 poor sleep')} if(value('steps')>=value('goalSteps',8000)){points+=10;reasons.push('+10 steps target')} if(text('gym')==='yes'){points+=10;reasons.push('+10 gym')} if(value('water')>=2){points+=5;reasons.push('+5 hydration')} return {score:clamp(Math.round(points),0,100),reasons}}
 function current(){let a=adhd(),s=sleep(),m=med(a,s),mo=mood(),h=health(s); let daily=Math.round(a.score*.35+s.score*.2+m.score*.25+mo.score*.1+h.score*.1); let risk=s.score<60||m.risk==='HIGH'||value('crashSeverity',5)>=7?'HIGH':s.score<75||m.risk==='MEDIUM'?'MEDIUM':'LOW'; return {date:new Date().toISOString(),adhd:a,sleep:s,med:m,mood:mo,health:h,dailyScore:daily,risk,values:{...vals},medName:text('medName'),dose:text('dose'),medTime:text('medTime'),caffeine:value('caffeine',100),proteinBreakfast:text('protein')==='yes',crash:{time:text('crashTime'),severity:value('crashSeverity',5),duration:diff(text('crashTime'),text('recoveryTime'))||value('recoveryMinutes')},hyperfocus:{activity:text('hyperfocusActivity'),minutes:value('hyperfocusMinutes'),type:text('hyperfocusType')},journal:{win:text('journalWin'),struggle:text('journalStruggle'),observation:text('journalObservation')}}}
 function adherence(){let es=db.entries.slice(-30); return es.length?Math.round(es.filter(e=>!e.med.missed).length/es.length*100)+'%':'--'}
 function avgCrashTime(){let t=db.entries.filter(e=>e.crash&&e.crash.time).map(e=>mins(e.crash.time)); return t.length?fmt(avg(t)):'--'}
 function avgCrashSeverity(){let v=db.entries.filter(e=>e.crash&&e.crash.severity).map(e=>e.crash.severity); return v.length?avg(v).toFixed(1)+'/10':'--'}
-function bestDose(){let g={}; db.entries.forEach(e=>{if(e.dose){g[e.dose]=g[e.dose]||[];g[e.dose].push(e.med.score)}}); let s=Object.entries(g).map(x=>[x[0],avg(x[1])]).sort((a,b)=>b[1]-a[1]); return s.length?s[0][0]:'--'}
 function commonActivity(){let c={}; db.entries.forEach(e=>{let a=e.hyperfocus&&e.hyperfocus.activity;if(a)c[a]=(c[a]||0)+1}); let s=Object.entries(c).sort((a,b)=>b[1]-a[1]); return s.length?s[0][0]:'--'}
 function coach(e){let out=[]; if(e.sleep.score<60)out.push('Sleep is limiting focus. Keep important work early and light.'); if(e.med.risk==='HIGH')out.push('Crash risk is high. Prioritise food, hydration and avoid extra caffeine.'); if(e.adhd.exec<60)out.push('Executive function is low. Use 5-minute task starts.'); if(!out.length)out.push('Good readiness. Use the morning/early afternoon for high-value tasks.'); return out}
 function insights(){let out=[]; if(db.entries.length<3)out.push('Need 3+ entries for stronger pattern insights.'); if(db.entries.some(e=>e.crash.time))out.push('Average crash time is '+avgCrashTime()+'.'); return out}
 function weekly(){let es=db.entries.slice(-7); if(!es.length)return'No weekly data yet.'; return 'Entries: '+es.length+'\\nADHD avg: '+avg(es.map(e=>e.adhd.score)).toFixed(1)+'\\nSleep avg: '+avg(es.map(e=>e.sleep.score)).toFixed(1)+'\\nMedication avg: '+avg(es.map(e=>e.med.score)).toFixed(1)+'%'}
-function report(){return 'ADHD HEALTH OS V4.2 REPORT\\n\\nEntries: '+db.entries.length+'\\nAdherence: '+adherence()+'\\nBest dose: '+bestDose()+'\\nAverage crash time: '+avgCrashTime()+'\\n\\n'+weekly()}
+function report(){return 'ADHD HEALTH OS V4.3 REPORT\\n\\nEntries: '+db.entries.length+'\\nAdherence: '+adherence()+'\\nAverage crash time: '+avgCrashTime()+'\\n\\n'+weekly()}
 function bar(label,vals){return '<div class="barWrap"><b>'+label+'</b>'+(vals.length?vals.slice(-10).map(v=>'<div class="bar" style="width:'+Math.max(3,Math.min(100,v))+'%"></div>').join(''):'<p class="muted">No data yet</p>')+'</div>'}
 function goals(){let e=current(); return [['ADHD',e.adhd.score,value('goalAdhd',75)],['Sleep',e.sleep.duration,value('goalSleep',8)],['Protein',value('proteinGrams'),value('goalProtein',180)],['Steps',value('steps'),value('goalSteps',8000)]]}
-function render(){let e=current(); set('dashAdhd',e.adhd.score+'/100'); set('dashSleep',e.sleep.score+'/100'); set('dashMed',e.med.score+'%'); set('dashRisk',e.risk); set('dailyScore',e.dailyScore); set('systemSummary',e.risk+' risk · daily '+e.dailyScore+'/100'); set('recommendation',coach(e)[0]); $('scoreCircle').className='scoreCircle '+(e.risk==='HIGH'?'high':e.risk==='MEDIUM'?'med':'low'); set('qualityVal',text('quality')||8); set('medEffectiveness',e.med.score+'%'); set('adherenceOut',adherence()); set('medCrashRisk',e.med.risk); set('bestDoseOut',bestDose()); set('durationOut',e.sleep.duration+'h'); set('latencyOut',e.sleep.latency==null?'--':e.sleep.latency+'m'); set('sleepScore',e.sleep.score+'/100'); set('sleepDebtOut',e.sleep.debt+'h'); set('healthScore',e.health.score+'/100'); set('weightTrend','tracking'); set('weeklyLossOut','tracking'); set('goalEtaOut','--'); set('avgCrashTimeOut',avgCrashTime()); set('avgCrashSeverityOut',avgCrashSeverity()); set('productiveHyperfocusOut',db.entries.length?'tracking':'--'); set('mostCommonHyperfocusOut',commonActivity()); let fr=Math.round(e.adhd.exec*.4+e.sleep.score*.25+e.med.score*.25+e.mood.score*.1); set('focusReadiness',fr+'/100'); set('focusReadinessPill',fr>=80?'READY':fr>=60?'OK':fr>=40?'FRAGILE':'LOW'); set('focusRecommendation',coach(e).join(' ')); html('workWindow','<div class="insight"><b>Suggested window</b>Morning to '+(avgCrashTime()==='--'?'early afternoon':avgCrashTime())+' for hardest tasks.</div>'); html('focusTimeline','<div class="timelineItem"><div class="timelineTime">'+(e.medTime||'--')+'</div><div>Medication window</div></div><div class="timelineItem"><div class="timelineTime">'+avgCrashTime()+'</div><div>Predicted crash window</div></div>'); html('actionPlan',coach(e).map(x=>'<div class="insight">'+x+'</div>').join('')); html('tomorrowForecast','<div class="insight"><b>Tomorrow forecast</b>Focus '+fr+'%, crash risk '+e.risk+'. Protein breakfast recommended.</div>'); html('recentEntries',db.entries.slice(-5).reverse().map(x=>'<div class="entry"><b>'+new Date(x.date).toLocaleString('en-GB')+' · '+x.dailyScore+'/100</b>ADHD '+x.adhd.score+' · Sleep '+x.sleep.score+' · Med '+x.med.score+'%</div>').join('')||'<p class="muted">No entries yet.</p>'); html('insightList',insights().map(x=>'<div class="insight">'+x+'</div>').join('')); set('weeklyReview',weekly()); html('chartArea',bar('Daily',db.entries.map(x=>x.dailyScore))+bar('ADHD',db.entries.map(x=>x.adhd.score))); html('goalProgress',goals().map(g=>'<div class="barWrap"><b>'+g[0]+': '+g[1]+' / '+g[2]+'</b><div class="progress"><div style="width:'+clamp(g[1]/g[2]*100,0,100)+'%"></div></div></div>').join('')); html('journalResults','<p class="muted">Journal entries save with daily entry.</p>')}
-function finishSetup(){db.profile={template:text('template'),med:text('setupMed')}; if(db.profile.med)$('medName').value=db.profile.med; save(); $('setupOverlay').classList.remove('show')}
-function init(){set('todayTitle',new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})); buildSliders(adhdMetrics,'adhdSliders'); buildSliders(moodMetrics,'moodSliders'); if(!db.profile)$('setupOverlay').classList.add('show'); document.querySelectorAll('input,select').forEach(el=>{el.addEventListener('input',render);el.addEventListener('change',render)}); $('tabs').addEventListener('click',e=>{let b=e.target.closest('button[data-tab]'); if(!b)return; document.querySelectorAll('.tabs button,.tab').forEach(x=>x.classList.remove('active')); b.classList.add('active'); $(b.dataset.tab).classList.add('active')}); $('finishSetupBtn').onclick=finishSetup; $('rerunSetupBtn').onclick=()=>$('setupOverlay').classList.add('show'); $('saveEntryBtn').onclick=()=>{db.entries.push(current());save();alert('Entry saved')}; $('resetBtn').onclick=()=>location.reload(); $('generateReportBtn').onclick=()=>set('reportText',report()); $('downloadReportBtn').onclick=()=>{let blob=new Blob([report()],{type:'text/plain'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='adhd-health-report.txt';a.click()}; $('exportBtn').onclick=$('exportJsonBtn').onclick=()=>{let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='adhd-health-os-v4-backup.json';a.click()}; $('importBtn').onclick=()=>{let f=$('importFile').files[0]; if(!f)return alert('Choose backup first'); let r=new FileReader(); r.onload=e=>{db=JSON.parse(e.target.result);save();alert('Imported')}; r.readAsText(f)}; $('saveSettingsBtn').onclick=()=>{db.settings={theme:text('theme'),scheme:text('scheme')};save();alert('Settings saved')}; $('clearBtn').onclick=()=>{if(confirm('Clear all data?')){db={entries:[],settings:{theme:'light',scheme:'copper'},profile:null};save();location.reload()}}; render()}
+function render(){let e=current(); 
+set('dashAdhd',e.adhd.score+'/100'); set('dashSleep',e.sleep.score+'/100'); set('dashMed',e.med.score+'%'); set('dashRisk',e.risk); set('dailyScore',e.dailyScore); set('systemSummary',e.risk+' risk · daily '+e.dailyScore+'/100'); set('recommendation',coach(e)[0]); $('scoreCircle').className='scoreCircle '+(e.risk==='HIGH'?'high':e.risk==='MEDIUM'?'med':'low');
+set('qualityVal',text('quality')||8); set('medEffectiveness',e.med.score+'%'); set('adherenceOut',adherence()); set('medCrashRisk',e.med.risk); set('bestDoseOut','tracking'); set('durationOut',e.sleep.duration+'h'); set('sleepScore',e.sleep.score+'/100'); set('sleepDebtOut',e.sleep.debt+'h'); set('sleepRiskOut',e.sleep.risk); set('healthScore',e.health.score+'/100'); set('weightTrend','tracking'); set('weeklyLossOut','tracking'); set('goalEtaOut','--'); set('avgCrashTimeOut',avgCrashTime()); set('avgCrashSeverityOut',avgCrashSeverity()); set('productiveHyperfocusOut',db.entries.length?'tracking':'--'); set('mostCommonHyperfocusOut',commonActivity());
+let fr=Math.round(e.adhd.exec*.4+e.sleep.score*.25+e.med.score*.25+e.mood.score*.1); set('focusReadiness',fr+'/100'); set('focusReadinessPill',fr>=80?'READY':fr>=60?'OK':fr>=40?'FRAGILE':'LOW'); set('focusRecommendation',coach(e).join(' ')); html('workWindow','<div class="insight"><b>Suggested window</b>Morning to '+(avgCrashTime()==='--'?'early afternoon':avgCrashTime())+' for hardest tasks.</div>'); html('focusTimeline','<div class="timelineItem"><div class="timelineTime">'+(e.medTime||'--')+'</div><div>Medication window</div></div><div class="timelineItem"><div class="timelineTime">'+avgCrashTime()+'</div><div>Predicted crash window</div></div>');
+html('overallExplain','<b>Daily score '+e.dailyScore+'/100</b>Built from ADHD 35%, medication 25%, sleep 20%, mood 10%, and health 10%. Risk is raised when sleep is low, medication crash risk is high, or crash severity is 7+.');
+html('adhdExplain','<b>ADHD score '+e.adhd.score+'/100</b>Focus, task initiation, switching and emotional regulation increase the score. Mental noise and irritability reduce it. Executive function: '+e.adhd.exec+'/100. Symptom control: '+e.adhd.symptom+'/100.');
+html('moodExplain','<b>Mood score '+e.mood.score+'/100</b>Mood and motivation increase the score. Anxiety and irritability reduce it.');
+html('sleepExplain','<b>Sleep score '+e.sleep.score+'/100</b>Duration gives up to 50 points, quality up to 40, and night wakings up to 10. Current breakdown: duration '+e.sleep.durationScore+'/50, quality '+e.sleep.qualityScore+'/40, wakings '+e.sleep.wakingScore+'/10.');
+html('medExplain','<b>Medication score '+e.med.score+'%</b>Uses ADHD score, sleep score, crash severity, protein breakfast and caffeine. Crash penalty: -'+e.med.crashPenalty+'. Protein impact: '+e.med.proteinBonus+'. Caffeine penalty: -'+e.med.caffeinePenalty+'.');
+html('healthExplain','<b>Health score '+e.health.score+'/100</b>Starts from 50 and adjusts for sleep, steps, gym, and hydration. '+(e.health.reasons.length?e.health.reasons.join(', '):'No health bonuses logged yet.'));
+html('focusExplain','<b>Focus readiness '+fr+'/100</b>Based on executive function, ADHD score, sleep, medication effectiveness and mood. This is separate from the overall daily score.');
+html('actionPlan',coach(e).map(x=>'<div class="insight">'+x+'</div>').join('')); html('recentEntries',db.entries.slice(-5).reverse().map(x=>'<div class="entry"><b>'+new Date(x.date).toLocaleString('en-GB')+' · '+x.dailyScore+'/100</b>ADHD '+x.adhd.score+' · Sleep '+x.sleep.score+' · Med '+x.med.score+'%</div>').join('')||'<p class="muted">No entries yet.</p>'); html('insightList',insights().map(x=>'<div class="insight">'+x+'</div>').join('')); set('weeklyReview',weekly()); html('chartArea',bar('Daily',db.entries.map(x=>x.dailyScore))+bar('ADHD',db.entries.map(x=>x.adhd.score))); html('goalProgress',goals().map(g=>'<div class="barWrap"><b>'+g[0]+': '+g[1]+' / '+g[2]+'</b><div class="progress"><div style="width:'+clamp(g[1]/g[2]*100,0,100)+'%"></div></div></div>').join('')); html('journalResults','<p class="muted">Journal entries save with daily entry.</p>')}
+function init(){set('todayTitle',new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})); buildSliders(adhdMetrics,'adhdSliders'); buildSliders(moodMetrics,'moodSliders'); applySettings(); document.querySelectorAll('input,select').forEach(el=>{el.addEventListener('input',render);el.addEventListener('change',render)}); $('tabs').addEventListener('click',e=>{let b=e.target.closest('button[data-tab]'); if(!b)return; document.querySelectorAll('.tabs button,.tab').forEach(x=>x.classList.remove('active')); b.classList.add('active'); $(b.dataset.tab).classList.add('active')}); $('saveEntryBtn').onclick=()=>{db.entries.push(current());save();alert('Entry saved')}; $('resetBtn').onclick=()=>location.reload(); $('generateReportBtn').onclick=()=>set('reportText',report()); $('downloadReportBtn').onclick=()=>{let blob=new Blob([report()],{type:'text/plain'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='adhd-health-report.txt';a.click()}; $('exportBtn').onclick=$('exportJsonBtn').onclick=()=>{let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='adhd-health-os-v43-backup.json';a.click()}; $('importBtn').onclick=()=>{let f=$('importFile').files[0]; if(!f)return alert('Choose backup first'); let r=new FileReader(); r.onload=e=>{db=JSON.parse(e.target.result);save();alert('Imported')}; r.readAsText(f)}; $('saveSettingsBtn').onclick=()=>{db.settings={theme:text('theme'),scheme:text('scheme')};save();alert('Settings saved')}; $('clearBtn').onclick=()=>{if(confirm('Clear all data?')){db={entries:[],settings:{theme:'light',scheme:'copper'}};save();location.reload()}}; render()}
 init();
 })();
 </script>

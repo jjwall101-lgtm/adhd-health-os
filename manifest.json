@@ -1,6 +1,6 @@
 {
-  "name": "ADHD Health OS V4.2 Working",
-  "short_name": "ADHD OS V4.2",
+  "name": "ADHD Health OS V4.3",
+  "short_name": "ADHD OS V4.3",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
