@@ -1,6 +1,6 @@
 {
-  "name": "ADHD Health OS Complete",
-  "short_name": "ADHD OS",
+  "name": "ADHD Health OS Complete Plus",
+  "short_name": "ADHD OS+",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

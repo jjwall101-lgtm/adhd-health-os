@@ -1,5 +1,5 @@
 const $=id=>document.getElementById(id);
-const storeKey='adhdHealthOSComplete';
+const storeKey='adhdHealthOSCompletePlus';
 let db=JSON.parse(localStorage.getItem(storeKey)||'{"entries":[],"settings":{"theme":"light","scheme":"copper"}}');
 
 const adhdMetrics=[
@@ -17,14 +17,16 @@ const moodMetrics=[
 {id:'irritMood',label:'Irritability'}
 ];
 let vals={focus:5,initiation:5,switching:5,emotional:5,noise:5,irritability:5,mood:5,motivation:5,anxiety:5,irritMood:5};
+let dirty=false;
 
 function clamp(n,min,max){return Math.max(min,Math.min(max,n))}
 function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:null}
 function rating(s){return s>=90?'Excellent':s>=75?'Good':s>=60?'Average':s>=40?'Poor':'Severe'}
-function save(){localStorage.setItem(storeKey,JSON.stringify(db));render()}
+function save(){localStorage.setItem(storeKey,JSON.stringify(db));dirty=false;render()}
 function mins(t){if(!t)return null;const [h,m]=t.split(':').map(Number);return h*60+m}
 function diffMins(a,b){let x=mins(a),y=mins(b);if(x===null||y===null)return null;if(y<x)y+=1440;return y-x}
 function todayTitle(){document.getElementById('todayTitle').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}
+function setDirty(){dirty=true; $('entryStatus').textContent='Unsaved'; $('entryStatus').classList.remove('saved')}
 
 function applySettings(){
  document.body.className='';
@@ -33,17 +35,15 @@ function applySettings(){
  if(db.settings.scheme && db.settings.scheme!=='copper')document.body.classList.add(db.settings.scheme);
  $('theme').value=db.settings.theme||'light';$('scheme').value=db.settings.scheme||'copper';
 }
-
 function buildSliders(list,wrapId){
  const wrap=$(wrapId);wrap.innerHTML='';
  list.forEach(m=>{
   const row=document.createElement('div');row.className='row';
   row.innerHTML=`<div class="rowTop"><span>${m.label}</span><span id="${m.id}Val">${vals[m.id]}</span></div><input id="${m.id}" type="range" min="0" max="10" value="${vals[m.id]}">`;
   wrap.appendChild(row);
-  $(m.id).addEventListener('input',e=>{vals[m.id]=Number(e.target.value);$(m.id+'Val').textContent=vals[m.id];render()});
+  $(m.id).addEventListener('input',e=>{vals[m.id]=Number(e.target.value);$(m.id+'Val').textContent=vals[m.id];setDirty();render()});
  });
 }
-
 function engineADHD(){
  let weighted=0;adhdMetrics.forEach(m=>{weighted+=(m.inverse?10-vals[m.id]:vals[m.id])*m.weight});
  const score=Math.round(weighted/10);
@@ -153,31 +153,48 @@ function chart(label, values, max=100){
 function render(){
  const e=currentEntry();$('qualityVal').textContent=$('quality').value;
  $('dashAdhd').textContent=e.adhd.score+'/100';$('dashSleep').textContent=e.sleep.score+'/100';$('dashMed').textContent=e.med.score+'%';$('dashRisk').textContent=e.risk;$('dailyScore').textContent=e.dailyScore;$('systemSummary').textContent=`${e.risk} risk · Daily score ${e.dailyScore}/100`;$('recommendation').textContent=smartRecommendation(e);
- $('adhdScore').textContent=e.adhd.score+'/100';$('execScore').textContent=e.adhd.exec+'/100';$('symptomScore').textContent=e.adhd.symptom+'/100';$('adhdRating').textContent=e.adhd.rating;$('moodScore').textContent=e.mood.score+'/100';$('motivationOut').textContent=vals.motivation+'/10';
+ $('scoreCircle').className='scoreCircle '+(e.risk==='HIGH'?'high':e.risk==='MEDIUM'?'med':'low');
+ $('adhdScore') && ($('adhdScore').textContent=e.adhd.score+'/100');$('execScore') && ($('execScore').textContent=e.adhd.exec+'/100');$('symptomScore') && ($('symptomScore').textContent=e.adhd.symptom+'/100');$('adhdRating') && ($('adhdRating').textContent=e.adhd.rating);$('moodScore') && ($('moodScore').textContent=e.mood.score+'/100');$('motivationOut') && ($('motivationOut').textContent=vals.motivation+'/10');
  $('medEffectiveness').textContent=e.med.score+'%';$('adherenceOut').textContent=adherencePercent();$('medCrashRisk').textContent=e.med.risk;$('lifestyleImpact').textContent=e.med.lifestyle>=0?'+'+e.med.lifestyle:e.med.lifestyle;
  $('sleepScore').textContent=e.sleep.score+'/100';$('recoveryRisk').textContent=e.sleep.risk;$('durationOut').textContent=e.sleep.duration+'h';$('latencyOut').textContent=e.sleep.latency===null?'--':e.sleep.latency+'m';$('crashDurationOut').textContent=e.crash.duration?e.crash.duration+'m':'--';$('healthScore').textContent=e.health.score+'/100';
  const weights=db.entries.filter(x=>x.weight).map(x=>x.weight);$('weightTrend').textContent=weights.length>1?(weights.at(-1)-weights[0]).toFixed(1)+'lb':'--';
  const total=db.entries.reduce((a,x)=>a+x.hyperfocus.minutes,0),prod=db.entries.reduce((a,x)=>a+(x.hyperfocus.type==='Productive'?x.hyperfocus.minutes:0),0);$('productiveHyperfocusOut').textContent=total?Math.round(prod/total*100)+'%':'--';$('hyperfocusWeek').textContent=total?total+'m':'--';
- $('todaySummary').innerHTML=`<div class="mini"><b>${e.dailyScore}/100</b><span>Daily score</span></div><div class="mini"><b>${e.risk}</b><span>Daily risk</span></div><div class="mini"><b>${e.med.score}%</b><span>Medication</span></div><div class="mini"><b>${e.sleep.duration}h</b><span>Sleep</span></div>`;
+ $('actionPlan').innerHTML=[
+  `<div class="insight"><b>Medication</b>${e.med.score}% effectiveness · ${e.med.risk} crash risk</div>`,
+  `<div class="insight"><b>Sleep</b>${e.sleep.duration}h · ${e.sleep.score}/100 · ${e.sleep.risk} recovery risk</div>`,
+  `<div class="insight"><b>ADHD</b>${e.adhd.score}/100 · ${e.adhd.rating}</div>`
+ ].join('');
+ $('snapshot').innerHTML=chart('Daily Score',db.entries.map(x=>x.dailyScore))+chart('ADHD Score',db.entries.map(x=>x.adhd.score))+chart('Sleep Score',db.entries.map(x=>x.sleep.score))+chart('Medication Effectiveness',db.entries.map(x=>x.med.score));
  $('insightList').innerHTML=insights().map(x=>`<div class="insight">${x}</div>`).join('');$('weeklyReview').textContent=weeklyReview();
- $('chartArea').innerHTML=chart('Daily Score',db.entries.map(x=>x.dailyScore))+chart('ADHD Score',db.entries.map(x=>x.adhd.score))+chart('Sleep Score',db.entries.map(x=>x.sleep.score))+chart('Medication Effectiveness',db.entries.map(x=>x.med.score));
+ $('chartArea').innerHTML=chart('Daily Score',db.entries.map(x=>x.dailyScore))+chart('ADHD Score',db.entries.map(x=>x.adhd.score))+chart('Sleep Score',db.entries.map(x=>x.sleep.score))+chart('Medication Effectiveness',db.entries.map(x=>x.med.score))+chart('Mood Score',db.entries.map(x=>x.mood.score))+chart('Health Score',db.entries.map(x=>x.health.score));
  renderHistory();
 }
 function renderHistory(){
- const box=$('recentEntries');const full=$('historyList');if(!db.entries.length){box.innerHTML='<p class="muted">No saved entries yet.</p>';return}
- const html=db.entries.slice().reverse().slice(0,5).map(e=>`<div class="entry"><b>${new Date(e.date).toLocaleString('en-GB')} · Daily ${e.dailyScore}/100 · ${e.risk}</b>ADHD ${e.adhd.score} · Sleep ${e.sleep.score} · Med ${e.med.score}% · Mood ${e.mood.score}</div>`).join('');
- box.innerHTML=html;
+ const recent=$('recentEntries'), hist=$('historyList');
+ if(!db.entries.length){recent.innerHTML='<p class="muted">No saved entries yet.</p>'; if(hist)hist.innerHTML=recent.innerHTML; return}
+ const html=db.entries.slice().reverse().map((e,idx)=>`<div class="entry"><b>${new Date(e.date).toLocaleString('en-GB')} · Daily ${e.dailyScore}/100 · ${e.risk}</b>ADHD ${e.adhd.score} · Sleep ${e.sleep.score} · Med ${e.med.score}% · Mood ${e.mood.score}<button class="secondary" onclick="deleteEntry(${db.entries.length-1-idx})">Delete Entry</button></div>`).join('');
+ recent.innerHTML=html.split('</div>').slice(0,3).join('</div>');
+ if(hist)hist.innerHTML=html;
 }
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button,.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active')});
+window.deleteEntry=function(i){if(confirm('Delete this entry?')){db.entries.splice(i,1);save()}}
+
+function resetForm(){
+ document.querySelectorAll('input').forEach(i=>{ if(i.type==='checkbox') i.checked=false; else if(!['range','file'].includes(i.type)) i.value=''; });
+ $('quality').value=8; vals={focus:5,initiation:5,switching:5,emotional:5,noise:5,irritability:5,mood:5,motivation:5,anxiety:5,irritMood:5};
+ document.querySelectorAll('input[type=range]').forEach(r=>{ if(r.id==='quality') return; r.value=5; if($(r.id+'Val')) $(r.id+'Val').textContent=5; });
+ $('wakings').value=1;$('caffeine').value=100;$('crashSeverity').value=5;$('protein').value='yes';$('missedDose').value='no';render();setDirty();
+}
 function init(){
  todayTitle();buildSliders(adhdMetrics,'adhdSliders');buildSliders(moodMetrics,'moodSliders');applySettings();
- document.querySelectorAll('input,select').forEach(el=>{el.addEventListener('input',render);el.addEventListener('change',render)});
- $('saveFullEntryBtn').onclick=()=>{db.entries.push(currentEntry());save();alert('Entry saved')};
+ document.querySelectorAll('input,select').forEach(el=>{el.addEventListener('input',()=>{setDirty();render()});el.addEventListener('change',()=>{setDirty();render()})});
+ document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button,.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active')});
+ $('saveFullEntryBtn').onclick=()=>{db.entries.push(currentEntry());save();$('entryStatus').textContent='Saved';$('entryStatus').classList.add('saved');alert('Entry saved')};
+ $('resetFormBtn').onclick=resetForm;
  $('generateReportBtn').onclick=()=>{$('reportText').textContent=report()};
  $('downloadReportBtn').onclick=()=>{const blob=new Blob([report()],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='adhd-health-report.txt';a.click()};
  $('exportBtn').onclick=$('exportJsonBtn').onclick=()=>{const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='adhd-health-os-backup.json';a.click()};
  $('importBtn').onclick=()=>{const f=$('importFile').files[0];if(!f)return alert('Choose a backup file first');const r=new FileReader();r.onload=e=>{db=JSON.parse(e.target.result);save();alert('Imported')};r.readAsText(f)};
- $('saveSettingsBtn').onclick=()=>{db.settings={theme:$('theme').value,scheme:$('scheme').value};applySettings();save()};
+ $('saveSettingsBtn').onclick=()=>{db.settings={theme:$('theme').value,scheme:$('scheme').value};applySettings();save();alert('Settings saved')};
  $('clearBtn').onclick=()=>{if(confirm('Clear all data?')){db={entries:[],settings:db.settings};save()}};
  render();
 }
