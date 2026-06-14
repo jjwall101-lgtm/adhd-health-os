@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ADHD Health OS Alpha</title>
+<title>ADHD Health OS — All Engines</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.svg">
 <link rel="stylesheet" href="styles.css">
@@ -16,7 +16,7 @@
     <img src="icon.svg" class="logo" alt="">
     <div>
       <p class="eyebrow">ADHD Health OS</p>
-      <h1>Alpha</h1>
+      <h1>All Engines Build</h1>
     </div>
   </div>
   <button id="exportBtn">Export</button>
@@ -24,8 +24,8 @@
 
 <section class="hero">
   <div>
-    <p>Today’s combined view</p>
-    <h2 id="combinedStatus">Start logging to generate scores.</h2>
+    <p>System Output</p>
+    <h2 id="systemSummary">Enter today’s data to run all engines.</h2>
   </div>
   <div class="scoreCircle">
     <span id="dailyScore">--</span>
@@ -34,79 +34,37 @@
 </section>
 
 <nav class="tabs">
-  <button class="active" data-tab="dashboard">Home</button>
-  <button data-tab="adhd">ADHD</button>
-  <button data-tab="sleep">Sleep</button>
-  <button data-tab="meds">Medication</button>
+  <button class="active" data-tab="today">Today</button>
+  <button data-tab="engines">Engines</button>
+  <button data-tab="insights">Insights</button>
+  <button data-tab="weekly">Weekly</button>
+  <button data-tab="report">Report</button>
   <button data-tab="history">History</button>
 </nav>
 
-<section id="dashboard" class="tab active">
+<section id="today" class="tab active">
   <div class="grid">
-    <div class="card stat"><b id="dashAdhd">--</b><span>ADHD Score</span></div>
-    <div class="card stat"><b id="dashSleep">--</b><span>Sleep Score</span></div>
-    <div class="card stat"><b id="dashMed">--</b><span>Med Effectiveness</span></div>
-    <div class="card stat"><b id="dashRisk">--</b><span>Crash Risk</span></div>
+    <div class="card stat"><b id="dashAdhd">--</b><span>ADHD</span></div>
+    <div class="card stat"><b id="dashSleep">--</b><span>Sleep</span></div>
+    <div class="card stat"><b id="dashMed">--</b><span>Medication</span></div>
+    <div class="card stat"><b id="dashRisk">--</b><span>Risk</span></div>
   </div>
 
   <div class="card">
-    <h2>Engine Status</h2>
-    <ul class="plain">
-      <li>✅ ADHD Score Engine merged</li>
-      <li>✅ Sleep Score Engine merged</li>
-      <li>✅ Medication Effectiveness Engine merged</li>
-      <li>✅ All scores now feed the dashboard</li>
-    </ul>
-  </div>
+    <h2>Today’s Entry</h2>
 
-  <div class="card">
-    <h2>Quick Insight</h2>
-    <p id="quickInsight">Enter data in each tab to generate insight.</p>
-  </div>
-</section>
-
-<section id="adhd" class="tab">
-  <div class="card">
-    <h2>ADHD Score Engine</h2>
+    <h3>ADHD</h3>
     <div id="adhdSliders"></div>
-    <div class="scorePanel">
-      <b id="adhdScore">50</b>
-      <span id="adhdRating">Poor</span>
-    </div>
-    <div class="grid two">
-      <div class="mini"><b id="execScore">50</b><span>Executive Function</span></div>
-      <div class="mini"><b id="symptomScore">50</b><span>Symptom Control</span></div>
-    </div>
-    <button id="saveAdhdBtn">Save ADHD Entry</button>
-  </div>
-</section>
 
-<section id="sleep" class="tab">
-  <div class="card">
-    <h2>Sleep Score Engine</h2>
-    <label>Sleep duration / hours <input id="duration" type="number" step="0.1" value="8"></label>
+    <h3>Sleep</h3>
+    <div class="grid two">
+      <label>Sleep hours <input id="duration" type="number" step="0.1" value="8"></label>
+      <label>Night wakings <input id="wakings" type="number" min="0" step="1" value="1"></label>
+    </div>
     <label>Sleep quality / 10 <input id="quality" type="range" min="0" max="10" value="8"></label>
     <p class="muted">Quality: <span id="qualityVal">8</span>/10</p>
-    <label>Night wakings <input id="wakings" type="number" min="0" step="1" value="1"></label>
-    <div class="grid two">
-      <label>Bedtime <input id="bedtime" type="time"></label>
-      <label>Wake time <input id="waketime" type="time"></label>
-    </div>
-    <div class="scorePanel">
-      <b id="sleepScore">90</b>
-      <span id="sleepRating">Excellent</span>
-    </div>
-    <div class="grid two">
-      <div class="mini"><b id="sleepDebt">0h</b><span>Sleep Debt</span></div>
-      <div class="mini"><b id="recoveryRisk">LOW</b><span>Recovery Risk</span></div>
-    </div>
-    <button id="saveSleepBtn">Save Sleep Entry</button>
-  </div>
-</section>
 
-<section id="meds" class="tab">
-  <div class="card">
-    <h2>Medication Effectiveness Engine</h2>
+    <h3>Medication</h3>
     <div class="grid two">
       <label>Medication / dose <input id="dose" placeholder="50mg Elvanse"></label>
       <label>Caffeine / mg <input id="caffeine" type="number" value="100"></label>
@@ -117,27 +75,73 @@
       </label>
       <label>Crash severity / 10 <input id="crashSeverity" type="number" min="0" max="10" value="5"></label>
     </div>
-    <div class="scorePanel">
-      <b id="effectivenessScore">75</b>
-      <span id="medRating">Good</span>
+    <div class="grid two">
+      <label>Crash time <input id="crashTime" type="time"></label>
+      <label>Weight <input id="weight" type="number" step="0.1" placeholder="lb"></label>
     </div>
     <div class="grid two">
-      <div class="mini"><b id="medCrashRisk">MEDIUM</b><span>Crash Risk</span></div>
-      <div class="mini"><b id="lifestyleImpact">+0</b><span>Lifestyle Impact</span></div>
+      <label>Hyperfocus activity <input id="hyperfocusActivity" placeholder="Phone, work, gaming..."></label>
+      <label>Hyperfocus minutes <input id="hyperfocusMinutes" type="number" placeholder="0"></label>
     </div>
-    <button id="saveMedBtn">Save Medication Entry</button>
+
+    <button id="saveTodayBtn">Save Full Daily Entry</button>
+  </div>
+</section>
+
+<section id="engines" class="tab">
+  <div class="card">
+    <h2>Engine Outputs</h2>
+    <div class="grid two">
+      <div class="mini"><b id="adhdScore">--</b><span>ADHD Score</span></div>
+      <div class="mini"><b id="execScore">--</b><span>Executive Function</span></div>
+      <div class="mini"><b id="symptomScore">--</b><span>Symptom Control</span></div>
+      <div class="mini"><b id="sleepScore">--</b><span>Sleep Score</span></div>
+      <div class="mini"><b id="sleepDebt">--</b><span>Sleep Debt</span></div>
+      <div class="mini"><b id="recoveryRisk">--</b><span>Recovery Risk</span></div>
+      <div class="mini"><b id="effectivenessScore">--</b><span>Med Effectiveness</span></div>
+      <div class="mini"><b id="crashRisk">--</b><span>Crash Risk</span></div>
+      <div class="mini"><b id="lifeScore">--</b><span>Daily Life Score</span></div>
+      <div class="mini"><b id="healthScore">--</b><span>Health Score</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="insights" class="tab">
+  <div class="card">
+    <h2>Correlation Engine</h2>
+    <div id="correlations"></div>
+  </div>
+  <div class="card">
+    <h2>Smart Dashboard Engine</h2>
+    <div id="smartInsight"></div>
+  </div>
+</section>
+
+<section id="weekly" class="tab">
+  <div class="card">
+    <h2>Weekly Review Engine</h2>
+    <div id="weeklyReview"></div>
+  </div>
+</section>
+
+<section id="report" class="tab">
+  <div class="card">
+    <h2>Clinician Report Engine</h2>
+    <button id="generateReportBtn">Generate Report</button>
+    <button id="downloadReportBtn">Download Report</button>
+    <pre id="reportText"></pre>
   </div>
 </section>
 
 <section id="history" class="tab">
   <div class="card">
-    <h2>Saved Entries</h2>
+    <h2>Saved Daily Entries</h2>
     <div id="historyList"></div>
     <button class="danger" id="clearBtn">Clear All Data</button>
   </div>
 </section>
-</main>
 
+</main>
 <script src="app.js"></script>
 </body>
 </html>
