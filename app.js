@@ -1,125 +1,43 @@
 const $=id=>document.getElementById(id);
-const storeKey='adhdHealthOSCompletePlus';
-let db=JSON.parse(localStorage.getItem(storeKey)||'{"entries":[],"settings":{"theme":"light","scheme":"copper"}}');
+const storeKey='adhdHealthOSUltimateV3';
+let db=JSON.parse(localStorage.getItem(storeKey)||'{"entries":[],"titration":[],"settings":{"theme":"light","scheme":"copper"}}');
 
-const adhdMetrics=[
-{id:'focus',label:'Focus',weight:25,inverse:false},
-{id:'initiation',label:'Task initiation',weight:20,inverse:false},
-{id:'switching',label:'Task switching',weight:15,inverse:false},
-{id:'emotional',label:'Emotional regulation',weight:15,inverse:false},
-{id:'noise',label:'Mental noise',weight:15,inverse:true},
-{id:'irritability',label:'Irritability',weight:10,inverse:true}
-];
-const moodMetrics=[
-{id:'mood',label:'Mood'},
-{id:'motivation',label:'Motivation'},
-{id:'anxiety',label:'Anxiety'},
-{id:'irritMood',label:'Irritability'}
-];
+const adhdMetrics=[{id:'focus',label:'Focus',weight:25,inverse:false},{id:'initiation',label:'Task initiation',weight:20,inverse:false},{id:'switching',label:'Task switching',weight:15,inverse:false},{id:'emotional',label:'Emotional regulation',weight:15,inverse:false},{id:'noise',label:'Mental noise',weight:15,inverse:true},{id:'irritability',label:'Irritability',weight:10,inverse:true}];
+const moodMetrics=[{id:'mood',label:'Mood'},{id:'motivation',label:'Motivation'},{id:'anxiety',label:'Anxiety'},{id:'irritMood',label:'Irritability'}];
 let vals={focus:5,initiation:5,switching:5,emotional:5,noise:5,irritability:5,mood:5,motivation:5,anxiety:5,irritMood:5};
-let dirty=false;
-
-function clamp(n,min,max){return Math.max(min,Math.min(max,n))}
-function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:null}
-function rating(s){return s>=90?'Excellent':s>=75?'Good':s>=60?'Average':s>=40?'Poor':'Severe'}
-function save(){localStorage.setItem(storeKey,JSON.stringify(db));dirty=false;render()}
-function mins(t){if(!t)return null;const [h,m]=t.split(':').map(Number);return h*60+m}
-function diffMins(a,b){let x=mins(a),y=mins(b);if(x===null||y===null)return null;if(y<x)y+=1440;return y-x}
-function todayTitle(){document.getElementById('todayTitle').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}
-function setDirty(){dirty=true; $('entryStatus').textContent='Unsaved'; $('entryStatus').classList.remove('saved')}
-
-function applySettings(){
- document.body.className='';
- if(db.settings.theme==='dark')document.body.classList.add('dark');
- if(db.settings.theme==='amoled')document.body.classList.add('amoled');
- if(db.settings.scheme && db.settings.scheme!=='copper')document.body.classList.add(db.settings.scheme);
- $('theme').value=db.settings.theme||'light';$('scheme').value=db.settings.scheme||'copper';
-}
-function buildSliders(list,wrapId){
- const wrap=$(wrapId);wrap.innerHTML='';
- list.forEach(m=>{
-  const row=document.createElement('div');row.className='row';
-  row.innerHTML=`<div class="rowTop"><span>${m.label}</span><span id="${m.id}Val">${vals[m.id]}</span></div><input id="${m.id}" type="range" min="0" max="10" value="${vals[m.id]}">`;
-  wrap.appendChild(row);
-  $(m.id).addEventListener('input',e=>{vals[m.id]=Number(e.target.value);$(m.id+'Val').textContent=vals[m.id];setDirty();render()});
- });
-}
-function engineADHD(){
- let weighted=0;adhdMetrics.forEach(m=>{weighted+=(m.inverse?10-vals[m.id]:vals[m.id])*m.weight});
- const score=Math.round(weighted/10);
- const exec=Math.round(((vals.focus+vals.initiation+vals.switching+vals.emotional)/40)*100);
- const symptom=Math.round((((10-vals.noise)+(10-vals.irritability))/20)*100);
- return{score,exec,symptom,rating:rating(score)};
-}
-function engineSleep(){
- const sleepStart=$('sleepTime').value||$('bedtime').value, wake=$('wakeTime').value;
- let duration=diffMins(sleepStart,wake);duration=duration===null?8:duration/60;
- const latency=diffMins($('bedtime').value,$('sleepTime').value);
- const quality=Number($('quality').value)||0,wakings=Number($('wakings').value)||0;
- let durScore=duration<=0?0:duration<=8?(duration/8)*50:duration<=9?50:Math.max(35,50-((duration-9)*5));
- const score=Math.round(clamp(durScore+(quality/10)*40+Math.max(0,10-wakings*2),0,100));
- return{score,rating:rating(score),risk:score>=75?'LOW':score>=60?'MEDIUM':'HIGH',duration:Number(duration.toFixed(1)),latency:latency===null?null:latency,wakings,quality,debt:Number(Math.max(0,8-duration).toFixed(1))};
-}
-function engineMed(adhd,sleep){
- const crash=clamp(Number($('crashSeverity').value)||0,0,10), caffeine=Number($('caffeine').value)||0, protein=$('protein').value==='yes', missed=$('missedDose').value==='yes';
- let caffeinePenalty=caffeine>300?10:caffeine>150?5:0;
- const lifestyle=(protein?5:-3)-caffeinePenalty-(missed?25:0);
- const raw=adhd.score*.70+(sleep.score-50)*.20-crash*3+lifestyle+20;
- const score=Math.round(clamp(raw,0,100));
- let risk='HIGH';if(crash<=3&&sleep.score>=75&&score>=75)risk='LOW';else if(crash<=6&&sleep.score>=60&&score>=60)risk='MEDIUM';
- return{score,rating:rating(score),risk,lifestyle,missed,adherence:adherencePercent()};
-}
-function adherencePercent(){
- const entries=db.entries.slice(-30);if(!entries.length)return '--';
- const taken=entries.filter(e=>!e.med.missed).length;return Math.round((taken/entries.length)*100)+'%';
-}
-function engineMood(){
- const positive=(vals.mood+vals.motivation+(10-vals.anxiety)+(10-vals.irritMood))/40;
- return{score:Math.round(positive*100),rating:rating(Math.round(positive*100))};
-}
-function engineHealth(sleep){
- let score=50;if(sleep.score>=75)score+=20;else if(sleep.score<60)score-=10;
- const protein=Number($('proteinGrams').value)||($('protein').value==='yes'?100:0);
- if(protein>=150)score+=15;else if(protein>=80)score+=10;else if(protein>0)score+=5;
- const caffeine=Number($('caffeine').value)||0;if(caffeine>300)score-=15;else if(caffeine>150)score-=5;
- if(Number($('water').value)>=2)score+=5;if($('gym').value==='yes')score+=10;if(Number($('steps').value)>=8000)score+=10;
- return{score:Math.round(clamp(score,0,100)),rating:rating(score)};
-}
-function currentEntry(){
- const adhd=engineADHD(),sleep=engineSleep(),med=engineMed(adhd,sleep),mood=engineMood(),health=engineHealth(sleep);
- const crashDuration=diffMins($('crashTime').value,$('recoveryTime').value) || Number($('recoveryMinutes').value)||0;
- const hyperfocus={activity:$('hyperfocusActivity').value,minutes:Number($('hyperfocusMinutes').value)||0,type:$('hyperfocusType').value,afterCrash:$('hyperfocusAfterCrash').value==='Yes'};
- const sideEffects=[...document.querySelectorAll('.side:checked')].map(x=>x.value);
- const dailyScore=Math.round(adhd.score*.35+sleep.score*.20+med.score*.25+mood.score*.10+health.score*.10);
- const risk=(sleep.score<60||med.risk==='HIGH'||Number($('crashSeverity').value)>=7)?'HIGH':(sleep.score<75||med.risk==='MEDIUM')?'MEDIUM':'LOW';
- return{date:new Date().toISOString(),values:{...vals},adhd,sleep,med,mood,health,dailyScore,risk,medName:$('medName').value,dose:$('dose').value,medTime:$('medTime').value,caffeine:Number($('caffeine').value)||0,proteinBreakfast:$('protein').value==='yes',sideEffects,crash:{time:$('crashTime').value,recovery:$('recoveryTime').value,severity:Number($('crashSeverity').value)||0,duration:crashDuration,symptoms:$('crashSymptoms').value},hyperfocus,weight:Number($('weight').value)||0,bodyFat:Number($('bodyFat').value)||0,bp:$('bp').value,pulse:Number($('pulse').value)||0,steps:Number($('steps').value)||0,water:Number($('water').value)||0,proteinGrams:Number($('proteinGrams').value)||0,gym:$('gym').value};
-}
-function insights(){
- const es=db.entries, out=[];
- if(es.length<3)out.push('Need at least 3 entries for stronger correlation insights.');
- const high=es.filter(e=>e.sleep.duration>=8), low=es.filter(e=>e.sleep.duration<7);
- if(high.length&&low.length)out.push(`Focus is ${(avg(high.map(e=>e.values.focus))-avg(low.map(e=>e.values.focus))).toFixed(1)}/10 different on 8h+ sleep days.`);
- const prod=es.reduce((a,e)=>a+(e.hyperfocus.type==='Productive'?e.hyperfocus.minutes:0),0), total=es.reduce((a,e)=>a+e.hyperfocus.minutes,0);
- if(total)out.push(`${Math.round((prod/total)*100)}% of logged hyperfocus time is productive.`);
- const crashes=es.filter(e=>e.crash.time); if(crashes.length){const am=avg(crashes.map(e=>mins(e.crash.time)));out.push(`Average crash time is ${String(Math.floor(am/60)).padStart(2,'0')}:${String(Math.round(am%60)).padStart(2,'0')}.`)}
- const caffeineHigh=es.filter(e=>e.caffeine>150), caffeineLow=es.filter(e=>e.caffeine<=150);
- if(caffeineHigh.length&&caffeineLow.length)out.push(`High caffeine days average ADHD ${avg(caffeineHigh.map(e=>e.adhd.score)).toFixed(1)} vs ${avg(caffeineLow.map(e=>e.adhd.score)).toFixed(1)} on lower caffeine days.`);
- return out;
-}
-function weeklyReview(){
- const es=db.entries.slice(-7);if(!es.length)return'No weekly data yet.';
- return`Entries: ${es.length}
+function clamp(n,min,max){return Math.max(min,Math.min(max,n))} function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:null} function rating(s){return s>=90?'Excellent':s>=75?'Good':s>=60?'Average':s>=40?'Poor':'Severe'}
+function save(){localStorage.setItem(storeKey,JSON.stringify(db));render()} function mins(t){if(!t)return null;const [h,m]=t.split(':').map(Number);return h*60+m} function diffMins(a,b){let x=mins(a),y=mins(b);if(x===null||y===null)return null;if(y<x)y+=1440;return y-x}
+function todayTitle(){$('todayTitle').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}
+function applySettings(){document.body.className='';if(db.settings.theme==='dark')document.body.classList.add('dark');if(db.settings.theme==='amoled')document.body.classList.add('amoled');if(db.settings.scheme&&db.settings.scheme!=='copper')document.body.classList.add(db.settings.scheme);$('theme').value=db.settings.theme||'light';$('scheme').value=db.settings.scheme||'copper'}
+function buildSliders(list,wrapId){const wrap=$(wrapId);wrap.innerHTML='';list.forEach(m=>{const row=document.createElement('div');row.className='row';row.innerHTML=`<div class="rowTop"><span>${m.label}</span><span id="${m.id}Val">${vals[m.id]}</span></div><input id="${m.id}" type="range" min="0" max="10" value="${vals[m.id]}">`;wrap.appendChild(row);$(m.id).addEventListener('input',e=>{vals[m.id]=Number(e.target.value);$(m.id+'Val').textContent=vals[m.id];render()})})}
+function engineADHD(){let weighted=0;adhdMetrics.forEach(m=>weighted+=(m.inverse?10-vals[m.id]:vals[m.id])*m.weight);const score=Math.round(weighted/10);const exec=Math.round(((vals.focus+vals.initiation+vals.switching+vals.emotional)/40)*100);const symptom=Math.round((((10-vals.noise)+(10-vals.irritability))/20)*100);return{score,exec,symptom,rating:rating(score)}}
+function engineSleep(){const bed=$('bedtime').value, asleep=$('sleepTime').value, wake=$('wakeTime').value;const start=asleep||bed;let duration=diffMins(start,wake);duration=duration===null?8:duration/60;const latency=asleep&&bed?diffMins(bed,asleep):null;const quality=Number($('quality').value)||0,wakings=Number($('wakings').value)||0;let durScore=duration<=0?0:duration<=8?(duration/8)*50:duration<=9?50:Math.max(35,50-((duration-9)*5));const score=Math.round(clamp(durScore+(quality/10)*40+Math.max(0,10-wakings*2),0,100));return{score,rating:rating(score),risk:score>=75?'LOW':score>=60?'MEDIUM':'HIGH',duration:Number(duration.toFixed(1)),latency:latency===null?null:latency,wakings,quality,debt:Number(Math.max(0,8-duration).toFixed(1))}}
+function adherencePercent(){const entries=db.entries.slice(-30);if(!entries.length)return'--';return Math.round(entries.filter(e=>!e.med.missed).length/entries.length*100)+'%'}
+function engineMed(adhd,sleep){const crash=clamp(Number($('crashSeverity').value)||0,0,10),caffeine=Number($('caffeine').value)||0,protein=$('protein').value==='yes',missed=$('missedDose').value==='yes';let caffeinePenalty=caffeine>300?10:caffeine>150?5:0;const lifestyle=(protein?5:-3)-caffeinePenalty-(missed?25:0);const score=Math.round(clamp(adhd.score*.70+(sleep.score-50)*.20-crash*3+lifestyle+20,0,100));let risk='HIGH';if(crash<=3&&sleep.score>=75&&score>=75)risk='LOW';else if(crash<=6&&sleep.score>=60&&score>=60)risk='MEDIUM';return{score,rating:rating(score),risk,lifestyle,missed,adherence:adherencePercent()}}
+function engineMood(){const p=(vals.mood+vals.motivation+(10-vals.anxiety)+(10-vals.irritMood))/40;return{score:Math.round(p*100),rating:rating(Math.round(p*100))}}
+function engineHealth(sleep){let score=50;if(sleep.score>=75)score+=20;else if(sleep.score<60)score-=10;const protein=Number($('proteinGrams').value)||($('protein').value==='yes'?100:0);if(protein>=150)score+=15;else if(protein>=80)score+=10;else if(protein>0)score+=5;const caffeine=Number($('caffeine').value)||0;if(caffeine>300)score-=15;else if(caffeine>150)score-=5;if(Number($('water').value)>=2)score+=5;if($('gym').value==='yes')score+=10;if(Number($('steps').value)>=Number($('goalSteps').value||8000))score+=10;return{score:Math.round(clamp(score,0,100)),rating:rating(score)}}
+function currentEntry(){const adhd=engineADHD(),sleep=engineSleep(),med=engineMed(adhd,sleep),mood=engineMood(),health=engineHealth(sleep);const crashDuration=diffMins($('crashTime').value,$('recoveryTime').value)||Number($('recoveryMinutes').value)||0;const hyperfocus={activity:$('hyperfocusActivity').value,minutes:Number($('hyperfocusMinutes').value)||0,type:$('hyperfocusType').value,afterCrash:$('hyperfocusAfterCrash').value==='Yes'};const sideEffects=[...document.querySelectorAll('.side:checked')].map(x=>x.value);const habits={medication:$('habitMedication').checked,water:$('habitWater').checked,protein:$('habitProtein').checked,exercise:$('habitExercise').checked,planning:$('habitPlanning').checked,journal:$('habitJournal').checked};const dailyScore=Math.round(adhd.score*.32+sleep.score*.18+med.score*.22+mood.score*.10+health.score*.10+habitScore(habits)*.08);const risk=(sleep.score<60||med.risk==='HIGH'||Number($('crashSeverity').value)>=7)?'HIGH':(sleep.score<75||med.risk==='MEDIUM')?'MEDIUM':'LOW';return{date:new Date().toISOString(),values:{...vals},adhd,sleep,med,mood,health,dailyScore,risk,medName:$('medName').value,dose:$('dose').value,medTime:$('medTime').value,caffeine:Number($('caffeine').value)||0,proteinBreakfast:$('protein').value==='yes',sideEffects,crash:{time:$('crashTime').value,recovery:$('recoveryTime').value,severity:Number($('crashSeverity').value)||0,duration:crashDuration,symptoms:$('crashSymptoms').value},hyperfocus,weight:Number($('weight').value)||0,bodyFat:Number($('bodyFat').value)||0,bp:$('bp').value,pulse:Number($('pulse').value)||0,steps:Number($('steps').value)||0,water:Number($('water').value)||0,proteinGrams:Number($('proteinGrams').value)||0,gym:$('gym').value,habits,journal:{win:$('journalWin').value,struggle:$('journalStruggle').value,observation:$('journalObservation').value}}}
+function habitScore(h){const arr=Object.values(h);return Math.round(arr.filter(Boolean).length/arr.length*100)}
+function timeFromMinutes(total){if(total===null||total===undefined||Number.isNaN(total))return'--';total=Math.round(total)%1440;return`${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`}
+function averageCrashTime(entries){const t=entries.filter(e=>e.crash&&e.crash.time).map(e=>mins(e.crash.time)).filter(x=>x!==null);return t.length?timeFromMinutes(avg(t)):'--'}
+function averageCrashSeverity(entries){const v=entries.filter(e=>e.crash&&e.crash.severity>0).map(e=>e.crash.severity);return v.length?avg(v).toFixed(1)+'/10':'--'}
+function mostCommonActivity(entries){const c={};entries.forEach(e=>{const a=e.hyperfocus&&e.hyperfocus.activity?e.hyperfocus.activity.trim():'';if(a)c[a]=(c[a]||0)+1});const s=Object.entries(c).sort((a,b)=>b[1]-a[1]);return s.length?s[0][0]:'--'}
+function engineFocusReadiness(e){let score=Math.round(e.adhd.exec*.35+e.adhd.score*.25+e.sleep.score*.20+e.med.score*.15+e.mood.score*.05);if(e.crash.severity>=7)score-=10;if(e.caffeine>300)score-=5;score=clamp(score,0,100);return{score,rating:score>=80?'READY':score>=60?'OK':score>=40?'FRAGILE':'LOW'}}
+function focusGuidance(e){if(e.sleep.score<60)return'Sleep is limiting focus today. Keep the day lighter and do important tasks earlier.';if(e.med.risk==='HIGH')return'Crash risk is high. Prioritise protein, hydration and avoid stacking caffeine.';if(e.adhd.exec<60)return'Executive function is lower today. Break tasks into very small steps.';if(e.values.noise>=7)return'Mental noise is high. Use a short list and avoid task switching.';if(e.adhd.exec>=75&&e.sleep.score>=75)return'Good focus setup. Use the morning/early afternoon for high-value tasks.';return'Mixed but workable. Keep tasks simple and log any crash pattern.'}
+function buildFocusTimeline(e){const items=[];if(e.medTime)items.push({time:e.medTime,text:`Medication taken: ${e.medName||''} ${e.dose||''}`.trim()});if(e.crash.time)items.push({time:e.crash.time,text:`Crash logged · severity ${e.crash.severity}/10`});if(e.crash.recovery)items.push({time:e.crash.recovery,text:'Recovered from crash'});const avgTime=averageCrashTime(db.entries);if(avgTime!=='--')items.push({time:avgTime,text:'Typical crash window based on saved history'});if(e.hyperfocus.activity)items.push({time:'--',text:`Hyperfocus: ${e.hyperfocus.activity} · ${e.hyperfocus.minutes||0}m · ${e.hyperfocus.type}`});if(!items.length)items.push({time:'--',text:'No focus timeline yet. Add medication time, crash time or hyperfocus activity.'});return items.sort((a,b)=>{if(a.time==='--')return 1;if(b.time==='--')return-1;return(mins(a.time)||0)-(mins(b.time)||0)}).map(i=>`<div class="timelineItem"><div class="timelineTime">${i.time}</div><div class="timelineText">${i.text}</div></div>`).join('')}
+function insights(){const es=db.entries,out=[];if(es.length<3)out.push('Need at least 3 entries for stronger correlation insights.');const high=es.filter(e=>e.sleep.duration>=8),low=es.filter(e=>e.sleep.duration<7);if(high.length&&low.length)out.push(`Focus is ${(avg(high.map(e=>e.values.focus))-avg(low.map(e=>e.values.focus))).toFixed(1)}/10 different on 8h+ sleep days.`);const py=es.filter(e=>e.proteinBreakfast),pn=es.filter(e=>!e.proteinBreakfast);if(py.length&&pn.length)out.push(`Protein breakfast medication effectiveness: ${avg(py.map(e=>e.med.score)).toFixed(1)}% vs ${avg(pn.map(e=>e.med.score)).toFixed(1)}%.`);const ch=es.filter(e=>e.caffeine>150),cl=es.filter(e=>e.caffeine<=150);if(ch.length&&cl.length)out.push(`High caffeine days average ADHD ${avg(ch.map(e=>e.adhd.score)).toFixed(1)} vs ${avg(cl.map(e=>e.adhd.score)).toFixed(1)} on lower caffeine days.`);const gym=es.filter(e=>e.gym==='yes'),nogym=es.filter(e=>e.gym!=='yes');if(gym.length&&nogym.length)out.push(`Gym days average mood ${avg(gym.map(e=>e.mood.score)).toFixed(1)} vs ${avg(nogym.map(e=>e.mood.score)).toFixed(1)}.`);const crashes=es.filter(e=>e.crash.time);if(crashes.length){const am=avg(crashes.map(e=>mins(e.crash.time)));out.push(`Average crash time is ${timeFromMinutes(am)}.`)}return out}
+function weeklyReview(){const es=db.entries.slice(-7);if(!es.length)return'No weekly data yet.';return`Entries: ${es.length}
 Average ADHD: ${avg(es.map(e=>e.adhd.score)).toFixed(1)}/100
 Average Sleep: ${avg(es.map(e=>e.sleep.score)).toFixed(1)}/100
 Average Medication: ${avg(es.map(e=>e.med.score)).toFixed(1)}%
 Average Mood: ${avg(es.map(e=>e.mood.score)).toFixed(1)}/100
 Average Health: ${avg(es.map(e=>e.health.score)).toFixed(1)}/100
 Average Daily Score: ${avg(es.map(e=>e.dailyScore)).toFixed(1)}/100
-Medication adherence: ${adherencePercent()}`;
-}
-function report(){
- const es=db.entries;if(!es.length)return'No entries saved yet.';
- return`ADHD HEALTH OS CLINICIAN REPORT
+Medication adherence: ${adherencePercent()}`}
+function coach(e){const out=[];if(e.dailyScore<60)out.push('Pick only 1–3 priority tasks today.');if(e.adhd.exec<60)out.push('Use task chunking: start with a 5-minute version of the task.');if(e.sleep.score<70)out.push('Avoid heavy decisions late in the day. Sleep is reducing capacity.');if(e.med.risk==='HIGH')out.push('Plan for a possible crash window and keep food/hydration easy.');if(e.values.noise>7)out.push('Use external structure: checklist, timer, one-tab rule.');if(!out.length)out.push('Good readiness. Use this window for important work before the usual crash period.');return out}
+function weightStats(){const es=db.entries.filter(e=>e.weight).sort((a,b)=>new Date(a.date)-new Date(b.date));if(es.length<2)return{trend:'--',weekly:'--',eta:'--'};const first=es[0],last=es[es.length-1];const days=Math.max(1,(new Date(last.date)-new Date(first.date))/(1000*60*60*24));const change=last.weight-first.weight;const weekly=change/days*7;let eta='--';const goal=Number($('goalWeight').value)||0;if(goal&&weekly<0){eta=Math.ceil((last.weight-goal)/Math.abs(weekly))+'w'}return{trend:change.toFixed(1)+'lb',weekly:weekly.toFixed(1)+'lb/w',eta}}
+function goals(){const e=currentEntry();const recent=db.entries.slice(-7);const gymCount=recent.filter(x=>x.gym==='yes').length;return[{name:'ADHD target',val:e.adhd.score,target:Number($('goalAdhd').value)||75,unit:'/100'},{name:'Sleep target',val:e.sleep.duration,target:Number($('goalSleep').value)||8,unit:'h'},{name:'Protein target',val:Number($('proteinGrams').value)||0,target:Number($('goalProtein').value)||180,unit:'g'},{name:'Water target',val:Number($('water').value)||0,target:Number($('goalWater').value)||2,unit:'L'},{name:'Gym weekly',val:gymCount,target:Number($('goalGym').value)||4,unit:'x'},{name:'Steps',val:Number($('steps').value)||0,target:Number($('goalSteps').value)||8000,unit:''}]}
+function report(){const es=db.entries;if(!es.length)return'No entries saved yet.';return`ADHD HEALTH OS ULTIMATE V3 REPORT
 
 Entries: ${es.length}
 Average ADHD Score: ${avg(es.map(e=>e.adhd.score)).toFixed(1)}/100
@@ -128,6 +46,11 @@ Average Medication Effectiveness: ${avg(es.map(e=>e.med.score)).toFixed(1)}%
 Average Mood Score: ${avg(es.map(e=>e.mood.score)).toFixed(1)}/100
 Average Health Score: ${avg(es.map(e=>e.health.score)).toFixed(1)}/100
 Medication Adherence: ${adherencePercent()}
+Average Crash Time: ${averageCrashTime(es)}
+Average Crash Severity: ${averageCrashSeverity(es)}
+
+Titration Phases:
+${db.titration.map(t=>`- ${t.med} ${t.dose}: ${t.start} to ${t.end||'ongoing'} · ${t.notes||''}`).join('\n') || 'None logged'}
 
 Common Side Effects:
 ${[...new Set(es.flatMap(e=>e.sideEffects))].join(', ') || 'None logged'}
@@ -138,65 +61,16 @@ ${insights().map(x=>'- '+x).join('\n')}
 Weekly Review:
 ${weeklyReview()}
 
-Generated: ${new Date().toLocaleString('en-GB')}`;
-}
-function smartRecommendation(e){
- if(e.risk==='HIGH')return'High risk day: reduce expectations, hydrate, eat protein, and avoid extra caffeine.';
- if(e.sleep.score<75)return'Sleep is limiting today. Keep tasks simple and watch for an earlier crash.';
- if(e.med.score>=75&&e.adhd.score>=75)return'Good setup today. Keep routine consistent.';
- return'Stable but mixed. Keep logging to build reliable patterns.';
-}
-function chart(label, values, max=100){
- if(!values.length)return`<div class="barWrap"><b>${label}</b><p class="muted">No data yet</p></div>`;
- return `<div class="barWrap"><b>${label}</b>${values.slice(-10).map(v=>`<div class="bar" style="width:${Math.max(3,Math.min(100,(v/max)*100))}%"></div>`).join('')}</div>`;
-}
-function render(){
- const e=currentEntry();$('qualityVal').textContent=$('quality').value;
- $('dashAdhd').textContent=e.adhd.score+'/100';$('dashSleep').textContent=e.sleep.score+'/100';$('dashMed').textContent=e.med.score+'%';$('dashRisk').textContent=e.risk;$('dailyScore').textContent=e.dailyScore;$('systemSummary').textContent=`${e.risk} risk · Daily score ${e.dailyScore}/100`;$('recommendation').textContent=smartRecommendation(e);
- $('scoreCircle').className='scoreCircle '+(e.risk==='HIGH'?'high':e.risk==='MEDIUM'?'med':'low');
- $('adhdScore') && ($('adhdScore').textContent=e.adhd.score+'/100');$('execScore') && ($('execScore').textContent=e.adhd.exec+'/100');$('symptomScore') && ($('symptomScore').textContent=e.adhd.symptom+'/100');$('adhdRating') && ($('adhdRating').textContent=e.adhd.rating);$('moodScore') && ($('moodScore').textContent=e.mood.score+'/100');$('motivationOut') && ($('motivationOut').textContent=vals.motivation+'/10');
- $('medEffectiveness').textContent=e.med.score+'%';$('adherenceOut').textContent=adherencePercent();$('medCrashRisk').textContent=e.med.risk;$('lifestyleImpact').textContent=e.med.lifestyle>=0?'+'+e.med.lifestyle:e.med.lifestyle;
- $('sleepScore').textContent=e.sleep.score+'/100';$('recoveryRisk').textContent=e.sleep.risk;$('durationOut').textContent=e.sleep.duration+'h';$('latencyOut').textContent=e.sleep.latency===null?'--':e.sleep.latency+'m';$('crashDurationOut').textContent=e.crash.duration?e.crash.duration+'m':'--';$('healthScore').textContent=e.health.score+'/100';
- const weights=db.entries.filter(x=>x.weight).map(x=>x.weight);$('weightTrend').textContent=weights.length>1?(weights.at(-1)-weights[0]).toFixed(1)+'lb':'--';
- const total=db.entries.reduce((a,x)=>a+x.hyperfocus.minutes,0),prod=db.entries.reduce((a,x)=>a+(x.hyperfocus.type==='Productive'?x.hyperfocus.minutes:0),0);$('productiveHyperfocusOut').textContent=total?Math.round(prod/total*100)+'%':'--';$('hyperfocusWeek').textContent=total?total+'m':'--';
- $('actionPlan').innerHTML=[
-  `<div class="insight"><b>Medication</b>${e.med.score}% effectiveness · ${e.med.risk} crash risk</div>`,
-  `<div class="insight"><b>Sleep</b>${e.sleep.duration}h · ${e.sleep.score}/100 · ${e.sleep.risk} recovery risk</div>`,
-  `<div class="insight"><b>ADHD</b>${e.adhd.score}/100 · ${e.adhd.rating}</div>`
- ].join('');
- $('snapshot').innerHTML=chart('Daily Score',db.entries.map(x=>x.dailyScore))+chart('ADHD Score',db.entries.map(x=>x.adhd.score))+chart('Sleep Score',db.entries.map(x=>x.sleep.score))+chart('Medication Effectiveness',db.entries.map(x=>x.med.score));
- $('insightList').innerHTML=insights().map(x=>`<div class="insight">${x}</div>`).join('');$('weeklyReview').textContent=weeklyReview();
- $('chartArea').innerHTML=chart('Daily Score',db.entries.map(x=>x.dailyScore))+chart('ADHD Score',db.entries.map(x=>x.adhd.score))+chart('Sleep Score',db.entries.map(x=>x.sleep.score))+chart('Medication Effectiveness',db.entries.map(x=>x.med.score))+chart('Mood Score',db.entries.map(x=>x.mood.score))+chart('Health Score',db.entries.map(x=>x.health.score));
- renderHistory();
-}
-function renderHistory(){
- const recent=$('recentEntries'), hist=$('historyList');
- if(!db.entries.length){recent.innerHTML='<p class="muted">No saved entries yet.</p>'; if(hist)hist.innerHTML=recent.innerHTML; return}
- const html=db.entries.slice().reverse().map((e,idx)=>`<div class="entry"><b>${new Date(e.date).toLocaleString('en-GB')} · Daily ${e.dailyScore}/100 · ${e.risk}</b>ADHD ${e.adhd.score} · Sleep ${e.sleep.score} · Med ${e.med.score}% · Mood ${e.mood.score}<button class="secondary" onclick="deleteEntry(${db.entries.length-1-idx})">Delete Entry</button></div>`).join('');
- recent.innerHTML=html.split('</div>').slice(0,3).join('</div>');
- if(hist)hist.innerHTML=html;
-}
-window.deleteEntry=function(i){if(confirm('Delete this entry?')){db.entries.splice(i,1);save()}}
-
-function resetForm(){
- document.querySelectorAll('input').forEach(i=>{ if(i.type==='checkbox') i.checked=false; else if(!['range','file'].includes(i.type)) i.value=''; });
- $('quality').value=8; vals={focus:5,initiation:5,switching:5,emotional:5,noise:5,irritability:5,mood:5,motivation:5,anxiety:5,irritMood:5};
- document.querySelectorAll('input[type=range]').forEach(r=>{ if(r.id==='quality') return; r.value=5; if($(r.id+'Val')) $(r.id+'Val').textContent=5; });
- $('wakings').value=1;$('caffeine').value=100;$('crashSeverity').value=5;$('protein').value='yes';$('missedDose').value='no';render();setDirty();
-}
-function init(){
- todayTitle();buildSliders(adhdMetrics,'adhdSliders');buildSliders(moodMetrics,'moodSliders');applySettings();
- document.querySelectorAll('input,select').forEach(el=>{el.addEventListener('input',()=>{setDirty();render()});el.addEventListener('change',()=>{setDirty();render()})});
- document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button,.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active')});
- $('saveFullEntryBtn').onclick=()=>{db.entries.push(currentEntry());save();$('entryStatus').textContent='Saved';$('entryStatus').classList.add('saved');alert('Entry saved')};
- $('resetFormBtn').onclick=resetForm;
- $('generateReportBtn').onclick=()=>{$('reportText').textContent=report()};
- $('downloadReportBtn').onclick=()=>{const blob=new Blob([report()],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='adhd-health-report.txt';a.click()};
- $('exportBtn').onclick=$('exportJsonBtn').onclick=()=>{const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='adhd-health-os-backup.json';a.click()};
- $('importBtn').onclick=()=>{const f=$('importFile').files[0];if(!f)return alert('Choose a backup file first');const r=new FileReader();r.onload=e=>{db=JSON.parse(e.target.result);save();alert('Imported')};r.readAsText(f)};
- $('saveSettingsBtn').onclick=()=>{db.settings={theme:$('theme').value,scheme:$('scheme').value};applySettings();save();alert('Settings saved')};
- $('clearBtn').onclick=()=>{if(confirm('Clear all data?')){db={entries:[],settings:db.settings};save()}};
- render();
-}
-init();
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}))}
+Generated: ${new Date().toLocaleString('en-GB')}`}
+function chart(label,values,max=100){if(!values.length)return`<div class="barWrap"><b>${label}</b><p class="muted">No data yet</p></div>`;return`<div class="barWrap"><b>${label}</b>${values.slice(-10).map(v=>`<div class="bar" style="width:${Math.max(3,Math.min(100,(v/max)*100))}%"></div>`).join('')}</div>`}
+function render(){const e=currentEntry();$('qualityVal').textContent=$('quality').value;$('dashAdhd').textContent=e.adhd.score+'/100';$('dashSleep').textContent=e.sleep.score+'/100';$('dashMed').textContent=e.med.score+'%';$('dashRisk').textContent=e.risk;$('dailyScore').textContent=e.dailyScore;$('systemSummary').textContent=`${e.risk} risk · Daily score ${e.dailyScore}/100`;$('recommendation').textContent=coach(e)[0];$('scoreCircle').className='scoreCircle '+(e.risk==='HIGH'?'high':e.risk==='MEDIUM'?'med':'low');
+$('medEffectiveness').textContent=e.med.score+'%';$('adherenceOut').textContent=adherencePercent();$('medCrashRisk').textContent=e.med.risk;$('lifestyleImpact').textContent=e.med.lifestyle>=0?'+'+e.med.lifestyle:e.med.lifestyle;$('sleepScore').textContent=e.sleep.score+'/100';$('recoveryRisk').textContent=e.sleep.risk;$('durationOut').textContent=e.sleep.duration+'h';$('latencyOut').textContent=e.sleep.latency===null?'--':e.sleep.latency+'m';$('healthScore').textContent=e.health.score+'/100';const ws=weightStats();$('weightTrend').textContent=ws.trend;$('weeklyLossOut').textContent=ws.weekly;$('goalEtaOut').textContent=ws.eta;$('crashDurationOut').textContent=e.crash.duration?e.crash.duration+'m':'--';$('avgCrashTimeOut').textContent=averageCrashTime(db.entries);$('avgCrashSeverityOut').textContent=averageCrashSeverity(db.entries);$('crashFrequencyOut').textContent=db.entries.filter(x=>x.crash&&x.crash.time).length;const total=db.entries.reduce((a,x)=>a+x.hyperfocus.minutes,0),prod=db.entries.reduce((a,x)=>a+(x.hyperfocus.type==='Productive'?x.hyperfocus.minutes:0),0);$('hyperfocusWeek').textContent=total?total+'m':'--';$('productiveHyperfocusOut').textContent=total?Math.round(prod/total*100)+'%':'--';$('mostCommonHyperfocusOut').textContent=mostCommonActivity(db.entries);const hc=db.entries.filter(x=>x.hyperfocus&&x.hyperfocus.minutes>0).length,ac=db.entries.filter(x=>x.hyperfocus&&x.hyperfocus.afterCrash).length;$('postCrashHyperfocusOut').textContent=hc?Math.round(ac/hc*100)+'%':'--';const fr=engineFocusReadiness(e);$('focusReadiness').textContent=fr.score+'/100';$('focusReadinessPill').textContent=fr.rating;$('focusRecommendation').textContent=focusGuidance(e);$('focusTimeline').innerHTML=buildFocusTimeline(e);
+$('actionPlan').innerHTML=coach(e).map(x=>`<div class="insight">${x}</div>`).join('');$('snapshot').innerHTML=chart('Daily Score',db.entries.map(x=>x.dailyScore))+chart('ADHD',db.entries.map(x=>x.adhd.score))+chart('Sleep',db.entries.map(x=>x.sleep.score))+chart('Medication',db.entries.map(x=>x.med.score));$('insightList').innerHTML=insights().map(x=>`<div class="insight">${x}</div>`).join('');$('coachList').innerHTML=coach(e).map(x=>`<div class="insight">${x}</div>`).join('');$('weeklyReview').textContent=weeklyReview();$('chartArea').innerHTML=chart('Daily Score',db.entries.map(x=>x.dailyScore))+chart('Mood',db.entries.map(x=>x.mood.score))+chart('Health',db.entries.map(x=>x.health.score));
+$('goalProgress').innerHTML=goals().map(g=>{const pct=Math.round(clamp(g.val/g.target*100,0,100));return`<div class="barWrap"><b>${g.name}: ${g.val}${g.unit} / ${g.target}${g.unit}</b><div class="progress"><div style="width:${pct}%"></div></div></div>`}).join('');const habitToday=habitScore(e.habits);$('habitScoreOut').textContent=habitToday+'%';const last=db.entries.slice(-7).map(x=>habitScore(x.habits));$('habitAdherenceOut').textContent=last.length?Math.round(avg(last))+'%':'--';renderJournal();renderTitration();renderHistory()}
+function renderHistory(){const el=$('recentEntries');if(!el)return; if(!db.entries.length){el.innerHTML='<p class="muted">No entries yet.</p>';return}el.innerHTML=db.entries.slice().reverse().slice(0,5).map((e,idx)=>`<div class="entry"><b>${new Date(e.date).toLocaleString('en-GB')} · Daily ${e.dailyScore}/100 · ${e.risk}</b>ADHD ${e.adhd.score} · Sleep ${e.sleep.score} · Med ${e.med.score}% · Mood ${e.mood.score}<button class="secondary" onclick="deleteEntry(${db.entries.length-1-idx})">Delete</button></div>`).join('')}
+window.deleteEntry=i=>{if(confirm('Delete this entry?')){db.entries.splice(i,1);save()}}
+function renderJournal(){const q=($('journalSearch').value||'').toLowerCase();const entries=db.entries.filter(e=>e.journal&&(e.journal.win||e.journal.struggle||e.journal.observation)).filter(e=>!q||JSON.stringify(e.journal).toLowerCase().includes(q));$('journalResults').innerHTML=entries.slice().reverse().map(e=>`<div class="entry"><b>${new Date(e.date).toLocaleDateString('en-GB')}</b>Win: ${e.journal.win||'-'}<br>Struggle: ${e.journal.struggle||'-'}<br>Observation: ${e.journal.observation||'-'}</div>`).join('')||'<p class="muted">No journal entries yet.</p>'}
+function renderTitration(){if(!db.titration)db.titration=[];$('titrationList').innerHTML=db.titration.slice().reverse().map((t,i)=>`<div class="entry"><b>${t.med} ${t.dose}</b>${t.start} to ${t.end||'ongoing'}<br>${t.notes||''}</div>`).join('')||'<p class="muted">No titration phases saved.</p>';const es=db.entries, phases=db.titration.map(t=>{const s=new Date(t.start),end=t.end?new Date(t.end):new Date();const subset=es.filter(e=>new Date(e.date)>=s&&new Date(e.date)<=end);return `${t.dose}: ${subset.length?avg(subset.map(e=>e.med.score)).toFixed(1)+'% avg effectiveness':'no data'}`});$('titrationSummary').innerHTML=phases.map(x=>`<div class="insight">${x}</div>`).join('')}
+function resetForm(){document.querySelectorAll('input').forEach(i=>{if(i.type==='checkbox')i.checked=false;else if(!['range','file','date'].includes(i.type))i.value=''});$('quality').value=8;vals={focus:5,initiation:5,switching:5,emotional:5,noise:5,irritability:5,mood:5,motivation:5,anxiety:5,irritMood:5};document.querySelectorAll('input[type=range]').forEach(r=>{if(r.id==='quality')return;r.value=5;if($(r.id+'Val'))$(r.id+'Val').textContent=5});$('wakings').value=1;$('caffeine').value=100;$('crashSeverity').value=5;$('protein').value='yes';$('missedDose').value='no';render()}
+function init(){todayTitle();buildSliders(adhdMetrics,'adhdSliders');buildSliders(moodMetrics,'moodSliders');applySettings();const today=new Date().toISOString().slice(0,10);$('titStart').value=today;document.querySelectorAll('input,select').forEach(el=>{el.addEventListener('input',render);el.addEventListener('change',render)});document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button,.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');$(b.dataset.tab).classList.add('active')});$('saveFullEntryBtn').onclick=()=>{db.entries.push(currentEntry());save();alert('Entry saved')};$('resetFormBtn').onclick=resetForm;$('saveTitrationBtn').onclick=()=>{db.titration.push({med:$('titMed').value,dose:$('titDose').value,start:$('titStart').value,end:$('titEnd').value,notes:$('titNotes').value});save();alert('Titration phase saved')};$('generateReportBtn').onclick=()=>{$('reportText').textContent=report()};$('downloadReportBtn').onclick=()=>{const blob=new Blob([report()],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='adhd-health-report.txt';a.click()};$('exportBtn').onclick=$('exportJsonBtn').onclick=()=>{const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='adhd-health-os-backup.json';a.click()};$('importBtn').onclick=()=>{const f=$('importFile').files[0];if(!f)return alert('Choose a backup file first');const r=new FileReader();r.onload=e=>{db=JSON.parse(e.target.result);save();alert('Imported')};r.readAsText(f)};$('saveSettingsBtn').onclick=()=>{db.settings={theme:$('theme').value,scheme:$('scheme').value};applySettings();save();alert('Settings saved')};$('clearBtn').onclick=()=>{if(confirm('Clear all data?')){db={entries:[],titration:[],settings:db.settings};save()}};render()}
+init();if('serviceWorker'in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}))}

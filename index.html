@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#171412">
-  <title>ADHD Health OS+</title>
+  <title>ADHD Health OS Ultimate V3</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icon.svg">
   <link rel="stylesheet" href="styles.css">
@@ -15,8 +15,8 @@
     <div class="brand">
       <img src="icon.svg" class="logo" alt="">
       <div>
-        <p class="eyebrow">ADHD Health OS+</p>
-        <h1 id="todayTitle">Today</h1>
+        <p class="eyebrow">ADHD Health OS</p>
+        <h1 id="todayTitle">Ultimate V3</h1>
       </div>
     </div>
     <button class="ghost" id="exportBtn">Export</button>
@@ -28,21 +28,21 @@
       <h2 id="systemSummary">Start logging to generate insights.</h2>
       <p class="muted" id="recommendation">Recommendations will appear here.</p>
     </div>
-    <div class="scoreCircle" id="scoreCircle">
-      <span id="dailyScore">--</span>
-      <small>Daily</small>
-    </div>
+    <div class="scoreCircle" id="scoreCircle"><span id="dailyScore">--</span><small>Daily</small></div>
   </section>
 
   <nav class="tabs">
     <button class="active" data-tab="home">Home</button>
     <button data-tab="log">Log</button>
+    <button data-tab="titration">Titration</button>
     <button data-tab="meds">Meds</button>
     <button data-tab="sleep">Sleep</button>
     <button data-tab="health">Health</button>
     <button data-tab="focus">Focus</button>
+    <button data-tab="goals">Goals</button>
+    <button data-tab="habits">Habits</button>
+    <button data-tab="journal">Journal</button>
     <button data-tab="insights">Insights</button>
-    <button data-tab="history">History</button>
     <button data-tab="report">Report</button>
     <button data-tab="settings">Settings</button>
   </nav>
@@ -54,33 +54,40 @@
       <div class="card stat"><b id="dashMed">--</b><span>Medication</span></div>
       <div class="card stat"><b id="dashRisk">--</b><span>Risk</span></div>
     </div>
-
     <div class="card">
-      <div class="cardHead">
-        <h2>Today’s Action Plan</h2>
-        <span id="entryStatus" class="pill">Unsaved</span>
-      </div>
+      <div class="cardHead"><h2>Today’s Action Plan</h2><span id="entryStatus" class="pill">Unsaved</span></div>
       <div id="actionPlan"></div>
       <button id="saveFullEntryBtn">Save Full Daily Entry</button>
       <button class="secondary" id="resetFormBtn">Reset Form</button>
     </div>
-
     <div class="card">
       <h2>7-Day Snapshot</h2>
       <div id="snapshot"></div>
     </div>
+    <div class="card">
+      <h2>Data Quality</h2>
+      <div id="dataQuality"></div>
+    </div>
   </section>
 
   <section id="log" class="tab">
-    <div class="card">
-      <h2>ADHD Check-in</h2>
-      <p class="muted">This powers ADHD score, executive function, symptom control and daily readiness.</p>
-      <div id="adhdSliders"></div>
-    </div>
+    <div class="card"><h2>ADHD Check-in</h2><p class="muted">Powers ADHD score, executive function, symptom control and daily readiness.</p><div id="adhdSliders"></div></div>
+    <div class="card"><h2>Mood & Drive</h2><div id="moodSliders"></div></div>
+  </section>
 
+  <section id="titration" class="tab">
     <div class="card">
-      <h2>Mood & Drive</h2>
-      <div id="moodSliders"></div>
+      <h2>Titration Centre</h2>
+      <div class="grid two">
+        <label>Medication <input id="titMed" placeholder="Elvanse"></label>
+        <label>Dose <input id="titDose" placeholder="50mg"></label>
+        <label>Start date <input id="titStart" type="date"></label>
+        <label>End date <input id="titEnd" type="date"></label>
+      </div>
+      <label>Notes <input id="titNotes" placeholder="Dose change, review notes..."></label>
+      <button id="saveTitrationBtn">Save Titration Phase</button>
+      <div id="titrationSummary"></div>
+      <div id="titrationList"></div>
     </div>
   </section>
 
@@ -91,15 +98,10 @@
         <label>Medication <input id="medName" placeholder="Elvanse"></label>
         <label>Dose <input id="dose" placeholder="50mg"></label>
         <label>Time taken <input id="medTime" type="time"></label>
-        <label>Missed dose?
-          <select id="missedDose"><option value="no">No</option><option value="yes">Yes</option></select>
-        </label>
-        <label>Protein breakfast
-          <select id="protein"><option value="yes">Yes</option><option value="no">No</option></select>
-        </label>
+        <label>Missed dose?<select id="missedDose"><option value="no">No</option><option value="yes">Yes</option></select></label>
+        <label>Protein breakfast<select id="protein"><option value="yes">Yes</option><option value="no">No</option></select></label>
         <label>Caffeine / mg <input id="caffeine" type="number" value="100"></label>
       </div>
-
       <h3>Side effects</h3>
       <div class="checks">
         <label><input type="checkbox" class="side" value="Appetite suppression"> Appetite suppression</label>
@@ -109,7 +111,6 @@
         <label><input type="checkbox" class="side" value="Irritability"> Irritability</label>
         <label><input type="checkbox" class="side" value="Sleep issues"> Sleep issues</label>
       </div>
-
       <div class="grid two">
         <div class="mini"><b id="medEffectiveness">--</b><span>Effectiveness</span></div>
         <div class="mini"><b id="adherenceOut">--</b><span>30-day adherence</span></div>
@@ -130,7 +131,6 @@
       </div>
       <label>Sleep quality / 10 <input id="quality" type="range" min="0" max="10" value="8"></label>
       <p class="muted">Quality: <span id="qualityVal">8</span>/10</p>
-
       <div class="grid two">
         <div class="mini"><b id="durationOut">8.0h</b><span>Total Sleep</span></div>
         <div class="mini"><b id="latencyOut">--</b><span>Sleep Latency</span></div>
@@ -142,29 +142,37 @@
 
   <section id="health" class="tab">
     <div class="card">
-      <h2>Health</h2>
+      <h2>Health & Weight Loss</h2>
       <div class="grid two">
         <label>Weight <input id="weight" type="number" step="0.1" placeholder="lb"></label>
         <label>Body fat % <input id="bodyFat" type="number" step="0.1"></label>
+        <label>Goal weight <input id="goalWeight" type="number" step="0.1" placeholder="lb"></label>
         <label>Blood pressure <input id="bp" placeholder="120/80"></label>
         <label>Pulse <input id="pulse" type="number"></label>
         <label>Steps <input id="steps" type="number"></label>
         <label>Water / litres <input id="water" type="number" step="0.1"></label>
         <label>Protein / grams <input id="proteinGrams" type="number" placeholder="180"></label>
-        <label>Gym session?
-          <select id="gym"><option value="no">No</option><option value="yes">Yes</option></select>
-        </label>
+        <label>Gym session?<select id="gym"><option value="no">No</option><option value="yes">Yes</option></select></label>
       </div>
       <div class="grid two">
         <div class="mini"><b id="healthScore">--</b><span>Health Score</span></div>
         <div class="mini"><b id="weightTrend">--</b><span>Weight Trend</span></div>
+        <div class="mini"><b id="weeklyLossOut">--</b><span>Weekly Rate</span></div>
+        <div class="mini"><b id="goalEtaOut">--</b><span>Goal ETA</span></div>
       </div>
     </div>
   </section>
 
   <section id="focus" class="tab">
     <div class="card">
-      <h2>Crash</h2>
+      <div class="cardHead"><h2>Focus Hub</h2><span id="focusReadinessPill" class="pill">--</span></div>
+      <div class="focusScoreBox">
+        <div><p class="muted">Focus Readiness</p><b id="focusReadiness">--</b></div>
+        <div id="focusRecommendation" class="focusRecommendation">Log sleep, medication and ADHD scores to generate focus guidance.</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Crash Engine</h2>
       <div class="grid two">
         <label>Crash start <input id="crashTime" type="time"></label>
         <label>Recovered at <input id="recoveryTime" type="time"></label>
@@ -172,39 +180,80 @@
         <label>Recovery minutes <input id="recoveryMinutes" type="number" placeholder="auto/manual"></label>
       </div>
       <label>Crash symptoms <input id="crashSymptoms" placeholder="Tired, foggy, irritable..."></label>
-      <div class="mini"><b id="crashDurationOut">--</b><span>Crash Duration</span></div>
+      <div class="grid two">
+        <div class="mini"><b id="crashDurationOut">--</b><span>Crash Duration</span></div>
+        <div class="mini"><b id="avgCrashTimeOut">--</b><span>Average Crash Time</span></div>
+        <div class="mini"><b id="avgCrashSeverityOut">--</b><span>Average Severity</span></div>
+        <div class="mini"><b id="crashFrequencyOut">--</b><span>Crash Logs</span></div>
+      </div>
     </div>
-
     <div class="card">
-      <h2>Hyperfocus</h2>
+      <h2>Hyperfocus Engine</h2>
       <div class="grid two">
         <label>Activity <input id="hyperfocusActivity" placeholder="Phone, work, gaming..."></label>
         <label>Minutes <input id="hyperfocusMinutes" type="number" placeholder="0"></label>
-        <label>Type
-          <select id="hyperfocusType"><option>Productive</option><option>Non-productive</option><option>Mixed</option></select>
-        </label>
-        <label>After crash?
-          <select id="hyperfocusAfterCrash"><option>No</option><option>Yes</option></select>
-        </label>
+        <label>Type<select id="hyperfocusType"><option>Productive</option><option>Non-productive</option><option>Mixed</option></select></label>
+        <label>After crash?<select id="hyperfocusAfterCrash"><option>No</option><option>Yes</option></select></label>
       </div>
       <div class="grid two">
         <div class="mini"><b id="hyperfocusWeek">--</b><span>This Week</span></div>
         <div class="mini"><b id="productiveHyperfocusOut">--</b><span>Productive %</span></div>
+        <div class="mini"><b id="mostCommonHyperfocusOut">--</b><span>Most Common</span></div>
+        <div class="mini"><b id="postCrashHyperfocusOut">--</b><span>After Crash %</span></div>
+      </div>
+    </div>
+    <div class="card"><h2>Focus Timeline</h2><div id="focusTimeline" class="timeline"></div></div>
+  </section>
+
+  <section id="goals" class="tab">
+    <div class="card">
+      <h2>Goals</h2>
+      <div class="grid two">
+        <label>ADHD score target <input id="goalAdhd" type="number" value="75"></label>
+        <label>Sleep target / h <input id="goalSleep" type="number" step="0.1" value="8"></label>
+        <label>Protein target / g <input id="goalProtein" type="number" value="180"></label>
+        <label>Water target / L <input id="goalWater" type="number" step="0.1" value="2"></label>
+        <label>Gym target / week <input id="goalGym" type="number" value="4"></label>
+        <label>Steps target <input id="goalSteps" type="number" value="8000"></label>
+      </div>
+      <div id="goalProgress"></div>
+    </div>
+  </section>
+
+  <section id="habits" class="tab">
+    <div class="card">
+      <h2>Habits</h2>
+      <div class="checks">
+        <label><input type="checkbox" id="habitMedication"> Medication</label>
+        <label><input type="checkbox" id="habitWater"> Water</label>
+        <label><input type="checkbox" id="habitProtein"> Protein</label>
+        <label><input type="checkbox" id="habitExercise"> Exercise</label>
+        <label><input type="checkbox" id="habitPlanning"> Planning</label>
+        <label><input type="checkbox" id="habitJournal"> Journaling</label>
+      </div>
+      <div class="grid two">
+        <div class="mini"><b id="habitScoreOut">--</b><span>Today</span></div>
+        <div class="mini"><b id="habitAdherenceOut">--</b><span>7-day adherence</span></div>
       </div>
     </div>
   </section>
 
-  <section id="insights" class="tab">
-    <div class="card"><h2>Insights</h2><div id="insightList"></div></div>
-    <div class="card"><h2>Weekly Review</h2><pre id="weeklyReview"></pre></div>
-    <div class="card"><h2>Trends</h2><div id="chartArea"></div></div>
+  <section id="journal" class="tab">
+    <div class="card">
+      <h2>ADHD Journal</h2>
+      <label>Win <input id="journalWin" placeholder="What worked today?"></label>
+      <label>Struggle <input id="journalStruggle" placeholder="What was difficult?"></label>
+      <label>Observation <input id="journalObservation" placeholder="Medication, mood, side effects, patterns..."></label>
+      <label>Search journal <input id="journalSearch" placeholder="Search saved entries"></label>
+      <div id="journalResults"></div>
+    </div>
   </section>
 
-  <section id="history" class="tab">
-    <div class="card">
-      <h2>History</h2>
-      <div id="historyList"></div>
-    </div>
+  <section id="insights" class="tab">
+    <div class="card"><h2>Correlation Engine 2.0</h2><div id="insightList"></div></div>
+    <div class="card"><h2>Executive Function Coach</h2><div id="coachList"></div></div>
+    <div class="card"><h2>Weekly Review</h2><pre id="weeklyReview"></pre></div>
+    <div class="card"><h2>Trends</h2><div id="chartArea"></div></div>
   </section>
 
   <section id="report" class="tab">
@@ -219,18 +268,14 @@
   <section id="settings" class="tab">
     <div class="card">
       <h2>Settings</h2>
-      <label>Theme
-        <select id="theme"><option value="light">Light</option><option value="dark">Dark</option><option value="amoled">AMOLED</option></select>
-      </label>
-      <label>Colour
-        <select id="scheme"><option value="copper">Copper</option><option value="ocean">Ocean</option><option value="forest">Forest</option><option value="plum">Plum</option></select>
-      </label>
+      <label>Theme<select id="theme"><option value="light">Light</option><option value="dark">Dark</option><option value="amoled">AMOLED</option></select></label>
+      <label>Colour<select id="scheme"><option value="copper">Copper</option><option value="ocean">Ocean</option><option value="forest">Forest</option><option value="plum">Plum</option></select></label>
       <button id="saveSettingsBtn">Save Settings</button>
       <button id="exportJsonBtn">Export JSON Backup</button>
       <input id="importFile" type="file" accept=".json">
       <button id="importBtn">Import Backup</button>
       <button class="danger" id="clearBtn">Clear All Data</button>
-      <p class="muted version">Version Complete+ · Dashboard, Engines, Insights, Backup, Reports</p>
+      <p class="muted version">Ultimate V3 · Titration · Goals · Habits · Journal · Coach · Correlations</p>
     </div>
   </section>
 </main>
