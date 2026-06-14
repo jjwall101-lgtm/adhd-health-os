@@ -1,6 +1,6 @@
 {
-  "name": "ADHD Health OS Ultimate V3",
-  "short_name": "ADHD OS V3",
+  "name": "ADHD Health OS V4 Public",
+  "short_name": "ADHD OS V4",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
